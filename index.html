@@ -1,0 +1,2029 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>냉장고 친구</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="냉장고 친구">
+<meta name="theme-color" content="#0D1117">
+<link rel="manifest" id="pwa-manifest">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0D1117;
+  --bg2: #161B22;
+  --bg3: #1C2128;
+  --card: #21262D;
+  --border: #30363D;
+  --ice: #58A6FF;
+  --ice2: #388BFD;
+  --teal: #3FB950;
+  --warm: #F78166;
+  --yellow: #E3B341;
+  --red: #F85149;
+  --text: #E6EDF3;
+  --text2: #8B949E;
+  --text3: #484F58;
+  --fridge-body: #1A2332;
+  --fridge-border: #2D4A6B;
+  --fridge-inner: #0F1922;
+  --fridge-shelf: #1E3A5F;
+  --slot-bg: #0A1520;
+  --slot-border: #1E3550;
+  --slot-hover: #1A3055;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;user-select:none;}
+
+/* ── SCREENS ── */
+.screen{display:none;min-height:100vh;flex-direction:column;}
+.screen.active{display:flex;}
+
+/* ══════════════════════════════════
+   ONBOARDING
+══════════════════════════════════ */
+#screen-onboard{
+  background:radial-gradient(ellipse at 20% 10%, #0d2340 0%, var(--bg) 55%);
+  align-items:center;justify-content:flex-start;padding:48px 20px 32px;overflow-y:auto;
+}
+.ob-hero{text-align:center;margin-bottom:32px;}
+.ob-logo{font-size:56px;margin-bottom:10px;display:block;animation:float 3s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.ob-title{font-size:26px;font-weight:900;margin-bottom:6px;}
+.ob-sub{font-size:13px;color:var(--text2);line-height:1.6;}
+
+.ob-card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:24px 18px;width:100%;max-width:420px;}
+
+/* step dots removed */
+.ob-card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:24px 18px;width:100%;max-width:420px;max-height:80vh;overflow-y:auto;}
+.ob-label{font-size:11px;font-weight:700;color:var(--ice);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;}
+.ob-hint{font-size:12px;color:var(--text3);line-height:1.5;}
+
+/* path buttons */
+.path-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px;}
+.path-btn{
+  background:#1C2A3A;border:2px solid var(--border);border-radius:14px;
+  padding:18px 12px;cursor:pointer;text-align:center;transition:all .2s;font-family:inherit;
+}
+.path-btn:hover,.path-btn.sel{border-color:#A8C8E8;background:#1E3044;}
+.path-btn .pi{font-size:30px;display:block;margin-bottom:8px;}
+.path-btn .pn{font-size:13px;font-weight:700;color:var(--text);}
+.path-btn .pd{font-size:11px;color:var(--text3);margin-top:3px;line-height:1.4;}
+
+/* inputs */
+.ob-input{
+  width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;
+  padding:11px 14px;font-size:14px;font-family:inherit;color:var(--text);outline:none;
+  transition:border-color .2s;
+}
+.ob-input:focus{border-color:var(--ice);}
+.ob-btn{
+  width:100%;padding:14px;background:var(--ice);border:none;border-radius:12px;
+  font-size:15px;font-weight:700;font-family:inherit;color:#0D1117;cursor:pointer;
+  transition:all .2s;margin-top:12px;
+}
+.ob-btn:hover{background:var(--ice2);}
+.ob-btn:disabled{opacity:.5;cursor:not-allowed;}
+.ob-back{
+  background:none;border:1px solid var(--border);border-radius:8px;
+  padding:6px 12px;font-size:12px;font-family:inherit;color:var(--text2);
+  cursor:pointer;margin-bottom:16px;display:inline-flex;align-items:center;gap:5px;
+}
+.ob-back:hover{border-color:var(--ice);color:var(--ice);}
+
+/* zone builder */
+.zone-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;min-height:36px;}
+.ztag{
+  display:inline-flex;align-items:center;gap:5px;
+  background:rgba(88,166,255,.12);border:1px solid rgba(88,166,255,.3);
+  border-radius:20px;padding:4px 10px;font-size:12px;color:var(--ice);
+}
+.ztag button{background:none;border:none;color:var(--ice);cursor:pointer;font-size:14px;line-height:1;padding:0;opacity:.6;}
+.ztag button:hover{opacity:1;}
+.preset-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
+.pchip{
+  padding:4px 10px;border-radius:20px;border:1px solid var(--border);
+  background:var(--bg3);font-size:11px;font-family:inherit;color:var(--text2);cursor:pointer;transition:all .15s;
+}
+.pchip:hover{border-color:var(--ice);color:var(--ice);}
+
+/* model preview */
+.model-preview{
+  background:var(--bg3);border:1px solid var(--border);border-radius:10px;
+  padding:12px;margin-top:10px;
+}
+.model-preview .mp-label{font-size:11px;color:var(--text3);margin-bottom:8px;}
+.mp-zones{display:flex;flex-wrap:wrap;gap:5px;}
+.mp-zone{
+  background:rgba(88,166,255,.1);border:1px solid rgba(88,166,255,.25);
+  border-radius:20px;padding:3px 9px;font-size:12px;color:var(--ice);
+}
+
+/* ══════════════════════════════════
+   MAIN APP
+══════════════════════════════════ */
+#screen-main{padding-bottom:68px;}
+
+/* header */
+.app-header{
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  padding:12px 16px 10px;position:sticky;top:0;z-index:50;
+}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.hdr-logo{display:flex;align-items:center;gap:8px;cursor:pointer;}
+.logo-em{font-size:20px;}
+.logo-name{font-size:16px;font-weight:900;}
+.logo-model{font-size:11px;color:var(--text3);margin-left:2px;}
+.hdr-right{display:flex;gap:8px;align-items:center;}
+.stat-badge{
+  background:var(--bg3);border:1px solid var(--border);border-radius:20px;
+  padding:4px 10px;font-size:11px;color:var(--text2);
+  display:flex;align-items:center;gap:4px;cursor:pointer;
+}
+.stat-badge .sv{color:var(--ice);font-weight:700;}
+.stat-badge.warn .sv{color:var(--yellow);}
+.stat-badge.danger .sv{color:var(--red);}
+
+/* fridge tabs */
+.fridge-tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;}
+.fridge-tabs::-webkit-scrollbar{display:none;}
+.ftab{
+  flex-shrink:0;padding:5px 14px;border-radius:20px;border:1px solid var(--border);
+  background:var(--bg3);font-size:12px;font-family:inherit;color:var(--text2);
+  cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.ftab.active{background:var(--ice);color:#0D1117;border-color:var(--ice);font-weight:700;}
+.ftab-add{
+  flex-shrink:0;width:28px;height:28px;border-radius:50%;border:1px dashed var(--border);
+  background:none;font-size:16px;color:var(--text3);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .2s;
+}
+.ftab-add:hover{border-color:var(--ice);color:var(--ice);}
+
+/* ── FRIDGE VISUAL ── */
+.fridge-viewport{
+  flex:1;overflow-y:auto;padding:12px 12px 16px;
+}
+.fridge-body{
+  background:var(--fridge-body);border:2px solid var(--fridge-border);
+  border-radius:16px;padding:10px;
+  box-shadow:inset 0 0 30px rgba(0,0,0,.4), 0 4px 20px rgba(0,0,0,.5);
+  min-height:calc(100vh - 180px);
+}
+.fridge-inner{
+  background:var(--fridge-inner);border-radius:10px;
+  padding:6px;display:flex;flex-direction:column;gap:4px;
+  min-height:calc(100vh - 210px);
+}
+
+/* sections (냉장/냉동 구분) */
+.fridge-section{margin-bottom:6px;}
+.section-divider{
+  display:flex;align-items:center;gap:8px;margin:8px 0 6px;
+}
+.section-divider::before,.section-divider::after{
+  content:'';flex:1;height:1px;background:var(--fridge-shelf);
+}
+.section-label{font-size:10px;color:var(--text3);white-space:nowrap;letter-spacing:.06em;}
+
+/* slot (칸) */
+.fridge-slot{
+  background:var(--slot-bg);border:1px solid var(--slot-border);
+  border-radius:8px;padding:8px;min-height:60px;
+  transition:all .2s;position:relative;cursor:pointer;
+}
+.fridge-slot:hover,.fridge-slot.drag-over{
+  border-color:var(--ice);background:var(--slot-hover);
+}
+.fridge-slot.drag-over{border-style:dashed;}
+.slot-label{
+  font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.05em;
+  margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;
+}
+.slot-add-hint{font-size:10px;color:var(--text3);opacity:0;transition:opacity .2s;}
+.fridge-slot:hover .slot-add-hint{opacity:1;}
+
+/* slot row layout (좌/우) */
+.slot-row{display:grid;gap:4px;}
+.slot-row.cols-2{grid-template-columns:1fr 1fr;}
+.slot-row.cols-3{grid-template-columns:1fr 1fr 1fr;}
+.slot-row.cols-1{grid-template-columns:1fr;}
+
+/* items inside slot */
+.slot-items{display:flex;flex-wrap:wrap;gap:4px;align-items:flex-start;}
+.item-chip{
+  display:inline-flex;align-items:center;gap:3px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:20px;padding:3px 8px;font-size:11px;
+  cursor:pointer;transition:all .15s;position:relative;
+  max-width:calc(50% - 2px);
+}
+.item-chip:hover{border-color:var(--ice);transform:scale(1.04);}
+.item-chip.dragging{opacity:.4;transform:scale(.95);}
+.item-chip .ci-em{font-size:14px;flex-shrink:0;}
+.item-chip .ci-img{width:16px;height:16px;border-radius:4px;object-fit:cover;flex-shrink:0;}
+.item-chip .ci-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text);}
+.item-chip .ci-exp{
+  font-size:9px;font-weight:700;margin-left:2px;flex-shrink:0;
+}
+.ci-exp.ok{color:var(--teal);}
+.ci-exp.soon{color:var(--yellow);}
+.ci-exp.over{color:var(--red);}
+.more-badge{
+  display:inline-flex;align-items:center;
+  background:var(--bg3);border:1px dashed var(--border);
+  border-radius:20px;padding:3px 7px;font-size:10px;color:var(--text3);
+}
+
+/* drag ghost */
+.drag-ghost{
+  position:fixed;pointer-events:none;z-index:9999;
+  background:var(--card);border:2px solid var(--ice);
+  border-radius:20px;padding:4px 10px;font-size:12px;
+  box-shadow:0 8px 24px rgba(0,0,0,.5);
+  display:none;align-items:center;gap:5px;
+  transform:translate(-50%,-50%);
+}
+
+/* ── FAB ── */
+.fab{
+  position:fixed;bottom:80px;right:16px;width:50px;height:50px;
+  border-radius:16px;background:var(--ice);border:none;
+  font-size:24px;color:#0D1117;cursor:pointer;
+  box-shadow:0 4px 20px rgba(88,166,255,.4);
+  display:none;align-items:center;justify-content:center;
+  transition:all .2s;z-index:100;
+}
+.fab:hover{transform:scale(1.08);}
+.fab-scan{
+  position:fixed;bottom:80px;right:74px;width:50px;height:50px;
+  border-radius:16px;background:#2A3F52;border:1px solid var(--border);
+  font-size:22px;color:var(--text);cursor:pointer;
+  box-shadow:0 4px 16px rgba(0,0,0,.3);
+  display:none;align-items:center;justify-content:center;
+  transition:all .2s;z-index:100;
+}
+.fab-scan:hover{background:#344F66;transform:scale(1.05);}
+
+/* ── SCAN MODAL ── */
+.scan-preview-wrap{
+  border-radius:12px;overflow:hidden;background:var(--bg3);
+  margin-bottom:14px;min-height:180px;
+  display:flex;align-items:center;justify-content:center;
+  border:2px dashed var(--border);cursor:pointer;transition:border-color .2s;
+  position:relative;
+}
+.scan-preview-wrap:hover{border-color:var(--ice);}
+.scan-preview-wrap img{width:100%;border-radius:10px;display:block;}
+.scan-placeholder{text-align:center;color:var(--text3);}
+.scan-placeholder .sp-icon{font-size:40px;margin-bottom:8px;}
+.scan-placeholder p{font-size:13px;line-height:1.5;}
+.scan-result-list{display:flex;flex-direction:column;gap:8px;max-height:320px;overflow-y:auto;}
+.scan-item{
+  display:flex;align-items:center;gap:12px;
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:10px;padding:10px 12px;transition:all .15s;cursor:pointer;
+}
+.scan-item.checked{background:rgba(88,166,255,.08);border-color:var(--ice);}
+.scan-check{
+  width:20px;height:20px;border-radius:6px;border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;flex-shrink:0;transition:all .15s;background:var(--bg2);
+}
+.scan-item.checked .scan-check{background:var(--ice);border-color:var(--ice);color:#0D1117;}
+.scan-item-emoji{font-size:22px;flex-shrink:0;}
+.scan-item-info{flex:1;}
+.scan-item-name{font-size:13px;font-weight:700;}
+.scan-item-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+.scan-item-zone{
+  font-size:11px;color:var(--text2);background:var(--bg2);
+  border:1px solid var(--border);border-radius:6px;padding:2px 7px;
+  cursor:pointer;flex-shrink:0;
+}
+.scan-loading{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:12px;padding:32px;color:var(--text2);
+}
+.scan-loading .spin{width:28px;height:28px;border-width:3px;}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--bg2);border-top:1px solid var(--border);
+  display:none;z-index:50;max-width:480px;margin:0 auto;
+  left:50%;transform:translateX(-50%);width:100%;
+}
+.bn-row{display:flex;}
+.bn-item{
+  flex:1;padding:9px 4px;display:flex;flex-direction:column;align-items:center;
+  font-size:10px;color:var(--text3);cursor:pointer;border:none;background:none;
+  font-family:inherit;transition:color .2s;gap:2px;
+}
+.bn-item.active{color:var(--ice);}
+.bn-icon{font-size:20px;}
+
+/* ── PAGES (non-fridge) ── */
+.page{display:none;}
+.fridge-page{flex-direction:column;}
+.fridge-page.active{display:flex;}
+.page.active{display:block;}
+.page-content{padding:14px 14px 20px;}
+
+/* expiry */
+.exp-group{margin-bottom:18px;}
+.exp-group-title{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--text3);
+  padding-bottom:8px;border-bottom:1px solid var(--border);margin-bottom:8px;}
+.exp-group-title.red{color:var(--red);}
+.exp-group-title.yellow{color:var(--yellow);}
+.exp-group-title.green{color:var(--teal);}
+.exp-row{
+  background:var(--card);border:1px solid var(--border);border-radius:10px;
+  padding:10px 12px;display:flex;align-items:center;gap:10px;margin-bottom:6px;cursor:pointer;
+}
+.exp-row:hover{border-color:var(--ice);}
+.exp-em{font-size:22px;}
+.exp-info{flex:1;}
+.exp-nm{font-size:13px;font-weight:700;}
+.exp-sub{font-size:11px;color:var(--text3);margin-top:1px;}
+.exp-pill{padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;}
+.pill-red{background:rgba(248,81,73,.15);color:var(--red);}
+.pill-yellow{background:rgba(227,179,65,.15);color:var(--yellow);}
+.pill-green{background:rgba(63,185,80,.15);color:var(--teal);}
+
+/* recipe */
+.recipe-hero{
+  background:linear-gradient(135deg,#0d2340,#162032);
+  border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:14px;
+}
+.recipe-hero h3{font-size:14px;font-weight:700;margin-bottom:4px;}
+.recipe-hero p{font-size:12px;color:var(--text2);margin-bottom:12px;}
+.recipe-mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.rmode-btn{
+  padding:9px;border-radius:10px;border:1px solid var(--border);
+  background:var(--bg3);font-size:12px;font-family:inherit;color:var(--text2);
+  cursor:pointer;transition:all .2s;text-align:center;
+}
+.rmode-btn.active{background:rgba(88,166,255,.12);border-color:var(--ice);color:var(--ice);font-weight:700;}
+.ing-tags-sel{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
+.itag{
+  padding:4px 10px;border-radius:20px;border:1px solid var(--border);
+  background:var(--bg3);font-size:11px;cursor:pointer;color:var(--text2);transition:all .15s;
+}
+.itag.sel{background:rgba(88,166,255,.15);border-color:var(--ice);color:var(--ice);}
+.btn-recipe{
+  width:100%;padding:12px;background:var(--ice);border:none;border-radius:10px;
+  font-size:14px;font-weight:700;font-family:inherit;color:#0D1117;cursor:pointer;transition:all .2s;
+}
+.btn-recipe:disabled{opacity:.5;cursor:not-allowed;}
+.recipe-result{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;}
+.rr-title{font-size:15px;font-weight:900;margin-bottom:12px;}
+.rr-body{font-size:13px;line-height:1.85;color:var(--text2);}
+.rr-body strong{color:var(--ice);}
+.recipe-loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:24px;color:var(--text2);font-size:13px;}
+.spin{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--ice);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* mypage */
+.my-content{padding:16px 14px 20px;}
+.my-fridge-list{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+.my-fridge-item{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:14px;display:flex;align-items:center;gap:12px;
+  cursor:pointer;transition:all .15s;
+}
+.my-fridge-item:hover{border-color:var(--ice);}
+.my-fridge-item.active-fridge{border-color:var(--ice);background:rgba(88,166,255,.06);}
+.mfi-icon{
+  width:44px;height:44px;background:rgba(88,166,255,.1);border:1px solid rgba(88,166,255,.2);
+  border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;
+}
+.mfi-info{flex:1;}
+.mfi-nick{font-size:15px;font-weight:700;}
+.mfi-model{font-size:11px;color:var(--text3);margin-top:2px;}
+.mfi-stats{display:flex;gap:8px;margin-top:5px;}
+.mfi-stat{font-size:11px;color:var(--text2);}
+.mfi-stat span{color:var(--ice);font-weight:700;}
+.mfi-actions{display:flex;gap:6px;}
+.mfi-btn{
+  width:30px;height:30px;border-radius:8px;border:1px solid var(--border);
+  background:var(--bg3);font-size:14px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .15s;
+}
+.mfi-btn:hover{border-color:var(--ice);}
+.mfi-btn.del:hover{border-color:var(--red);}
+
+.my-add-fridge{
+  background:var(--bg3);border:1px dashed var(--border);border-radius:14px;
+  padding:14px;display:flex;align-items:center;justify-content:center;gap:8px;
+  cursor:pointer;font-size:13px;color:var(--text3);transition:all .15s;margin-bottom:20px;
+}
+.my-add-fridge:hover{border-color:var(--ice);color:var(--ice);}
+
+.my-section-title{font-size:11px;font-weight:700;color:var(--text3);
+  letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px;
+  padding-bottom:8px;border-bottom:1px solid var(--border);}
+.my-reset-btn{
+  width:100%;padding:12px;background:none;border:1px solid rgba(248,81,73,.3);
+  border-radius:12px;font-size:14px;font-family:inherit;color:var(--red);
+  cursor:pointer;transition:all .2s;text-align:left;display:flex;align-items:center;gap:10px;
+}
+.my-reset-btn:hover{background:rgba(248,81,73,.06);border-color:var(--red);}
+
+/* ── MODALS ── */
+.overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;
+  display:none;align-items:flex-end;justify-content:center;
+}
+.overlay.open{display:flex;}
+.modal{
+  background:var(--bg2);border:1px solid var(--border);border-radius:24px 24px 0 0;
+  width:100%;max-width:480px;max-height:90vh;overflow-y:auto;
+  padding:18px 18px 36px;animation:slideUp .3s cubic-bezier(.32,1,.4,1);
+}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:32px;height:3px;background:var(--border);border-radius:2px;margin:0 auto 16px;}
+.modal-title{font-size:17px;font-weight:900;margin-bottom:18px;}
+
+.fg{margin-bottom:14px;}
+.fg label{display:block;font-size:12px;color:var(--text2);margin-bottom:5px;font-weight:500;}
+.fi{
+  width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:9px;
+  padding:10px 12px;font-size:14px;font-family:inherit;color:var(--text);outline:none;
+  transition:border-color .2s;
+}
+.fi:focus{border-color:var(--ice);}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* item type toggle */
+.type-tog{display:flex;gap:8px;margin-bottom:14px;}
+.tt-btn{
+  flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);
+  background:var(--bg3);font-size:13px;font-family:inherit;cursor:pointer;color:var(--text2);transition:all .2s;
+}
+.tt-btn.ing.active{background:rgba(88,166,255,.12);border-color:var(--ice);color:var(--ice);font-weight:700;}
+.tt-btn.food.active{background:rgba(247,129,102,.12);border-color:var(--warm);color:var(--warm);font-weight:700;}
+
+/* emoji picker */
+.ep-preview{
+  width:52px;height:52px;border-radius:12px;background:var(--bg3);border:2px solid var(--border);
+  font-size:26px;cursor:pointer;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;overflow:hidden;transition:border-color .2s;
+}
+.ep-preview:hover{border-color:var(--ice);}
+.ep-preview img{width:100%;height:100%;object-fit:cover;}
+.ep-row{display:flex;align-items:flex-start;gap:10px;}
+.ep-right{flex:1;}
+.ep-cat-tabs{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;margin-bottom:6px;}
+.ep-cat-tabs::-webkit-scrollbar{display:none;}
+.ep-ct{
+  flex-shrink:0;padding:3px 9px;border-radius:20px;border:1px solid var(--border);
+  background:var(--bg3);font-size:11px;font-family:inherit;color:var(--text2);cursor:pointer;transition:all .15s;
+}
+.ep-ct.active{background:rgba(88,166,255,.12);border-color:var(--ice);color:var(--ice);}
+.ep-grid{display:flex;flex-wrap:wrap;gap:4px;max-height:100px;overflow-y:auto;}
+.ep-em{
+  width:36px;height:36px;border-radius:8px;border:1px solid var(--border);
+  background:var(--bg3);font-size:18px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .15s;
+}
+.ep-em.sel{border-color:var(--ice);background:rgba(88,166,255,.12);}
+.img-upload-area{
+  border:1px dashed var(--border);border-radius:8px;padding:10px;
+  text-align:center;cursor:pointer;font-size:11px;color:var(--text3);
+  margin-top:6px;transition:all .2s;
+}
+.img-upload-area:hover{border-color:var(--ice);color:var(--ice);}
+.ing-tag-input-area{
+  display:flex;flex-wrap:wrap;gap:5px;
+  background:var(--bg3);border:1px solid var(--border);border-radius:9px;
+  padding:7px;min-height:40px;cursor:text;
+}
+.itag-pill{
+  background:rgba(88,166,255,.12);border:1px solid rgba(88,166,255,.3);
+  border-radius:20px;padding:2px 7px;font-size:11px;color:var(--ice);
+  display:flex;align-items:center;gap:3px;
+}
+.itag-pill button{background:none;border:none;color:var(--ice);cursor:pointer;font-size:13px;line-height:1;}
+.itag-text{border:none;background:none;font-size:12px;font-family:inherit;color:var(--text);outline:none;min-width:60px;}
+
+.btn-save{
+  width:100%;padding:13px;background:var(--ice);border:none;border-radius:11px;
+  font-size:15px;font-weight:700;font-family:inherit;color:#0D1117;cursor:pointer;transition:all .2s;
+}
+.btn-save:hover{background:var(--ice2);}
+
+/* item action sheet */
+.action-sheet{
+  background:var(--bg2);border:1px solid var(--border);border-radius:24px 24px 0 0;
+  width:100%;max-width:480px;padding:18px 18px 36px;animation:slideUp .3s cubic-bezier(.32,1,.4,1);
+}
+.as-item-preview{
+  display:flex;align-items:center;gap:12px;
+  background:var(--bg3);border:1px solid var(--border);border-radius:12px;
+  padding:12px;margin-bottom:16px;
+}
+.as-em{font-size:28px;}
+.as-info{}
+.as-name{font-size:15px;font-weight:700;}
+.as-meta{font-size:12px;color:var(--text2);margin-top:2px;}
+.as-actions{display:flex;flex-direction:column;gap:8px;}
+.as-btn{
+  width:100%;padding:12px 16px;border-radius:11px;border:1px solid var(--border);
+  background:var(--card);font-size:14px;font-family:inherit;cursor:pointer;
+  color:var(--text);text-align:left;display:flex;align-items:center;gap:10px;transition:all .15s;
+}
+.as-btn:hover{border-color:var(--ice);}
+.as-btn.danger{color:var(--red);}
+.as-btn.danger:hover{border-color:var(--red);background:rgba(248,81,73,.05);}
+
+/* move zone selector */
+.zone-sel-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.zone-sel-btn{
+  padding:8px 14px;border-radius:20px;border:1px solid var(--border);
+  background:var(--bg3);font-size:13px;font-family:inherit;color:var(--text2);
+  cursor:pointer;transition:all .15s;
+}
+.zone-sel-btn:hover,.zone-sel-btn.sel{border-color:var(--ice);color:var(--ice);background:rgba(88,166,255,.1);}
+
+/* stats popup */
+.stats-popup{
+  background:var(--bg2);border:1px solid var(--border);border-radius:24px 24px 0 0;
+  width:100%;max-width:480px;padding:18px 18px 36px;animation:slideUp .3s cubic-bezier(.32,1,.4,1);
+}
+.sp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+.sp-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;}
+.sp-num{font-size:24px;font-weight:900;color:var(--ice);}
+.sp-label{font-size:11px;color:var(--text3);margin-top:3px;}
+.sp-list{display:flex;flex-direction:column;gap:6px;max-height:240px;overflow-y:auto;}
+.sp-row{
+  background:var(--bg3);border:1px solid var(--border);border-radius:10px;
+  padding:10px 12px;display:flex;align-items:center;gap:10px;cursor:pointer;
+}
+.sp-row:hover{border-color:var(--ice);}
+
+/* fridge setup modal */
+.nick-edit{display:flex;align-items:center;gap:8px;margin-bottom:16px;}
+.nick-edit input{flex:1;}
+.zone-edit-list{display:flex;flex-direction:column;gap:6px;margin-bottom:10px;}
+.ze-row{
+  display:flex;align-items:center;gap:8px;
+  background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:8px 10px;
+}
+.ze-row input{flex:1;background:none;border:none;font-size:13px;font-family:inherit;color:var(--text);outline:none;}
+.ze-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:0;}
+.ze-del:hover{color:var(--red);}
+
+/* toast */
+.toast{
+  position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(10px);
+  background:var(--card);border:1px solid var(--border);border-radius:10px;
+  padding:9px 16px;font-size:13px;color:var(--text);z-index:999;
+  opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+.empty-state{text-align:center;padding:40px 16px;color:var(--text3);}
+.empty-state .ei{font-size:44px;margin-bottom:10px;}
+.empty-state p{font-size:13px;line-height:1.7;}
+
+/* section-hd */
+.section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.section-ttl{font-size:13px;font-weight:700;color:var(--text2);}
+.cnt-badge{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:2px 8px;font-size:11px;color:var(--text3);}
+
+::-webkit-scrollbar{width:3px;height:3px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<!-- ═══ DRAG GHOST ═══ -->
+<div class="drag-ghost" id="drag-ghost">
+  <span id="dg-em">🥕</span><span id="dg-name">당근</span>
+</div>
+
+<!-- ══════════════════════════════════
+     ONBOARDING
+══════════════════════════════════ -->
+<div id="screen-onboard" class="screen active">
+  <div class="ob-hero">
+    <span class="ob-logo">🧊</span>
+    <div class="ob-title">냉장고 친구</div>
+    <div class="ob-sub">내 냉장고를 등록하고<br>식재료와 음식을 한눈에 관리해요</div>
+  </div>
+
+  <div class="ob-card">
+
+    <!-- 단일 화면: 모델명 입력 + 직접설정 링크 -->
+    <div id="ob-main">
+      <div class="ob-label">내 냉장고 닉네임</div>
+      <input class="ob-input" id="ob-nick" placeholder="예: 우리집 냉장고, 주방 냉장고..." style="margin-bottom:16px;">
+
+      <div class="ob-label">모델명으로 자동 등록</div>
+      <div style="display:flex;gap:8px;margin-bottom:4px;">
+        <input class="ob-input" id="ob-model" placeholder="예: LG DIOS V9500, 삼성 비스포크 RF85..." style="flex:1;">
+        <button onclick="searchModel()" id="search-btn" style="background:var(--ice);border:none;border-radius:10px;padding:0 14px;color:#0D1117;font-weight:700;cursor:pointer;font-family:inherit;font-size:13px;white-space:nowrap;">AI 검색</button>
+      </div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:14px;line-height:1.5;">
+        모델명 입력 시 AI가 냉장실 좌1단·야채칸·문짝 등 칸 구조를 자동 세팅해요<br>
+        모델명을 모른다면? <span onclick="showManualSetup()" style="color:var(--ice);text-decoration:underline;cursor:pointer;">직접 설정하기</span>
+      </div>
+
+      <!-- AI 검색 결과 -->
+      <div id="model-result" style="display:none;">
+        <div class="model-preview">
+          <div class="mp-label">🤖 감지된 칸 구성 (수정 가능)</div>
+          <div class="mp-zones" id="mp-zones"></div>
+        </div>
+        <div style="margin-top:10px;">
+          <div class="zone-tags" id="model-zone-tags"></div>
+          <div style="display:flex;gap:7px;">
+            <input class="ob-input" id="model-zone-inp" placeholder="칸 추가..." style="flex:1;font-size:13px;padding:8px 11px;" onkeydown="if(event.key==='Enter')addZoneModel()">
+            <button onclick="addZoneModel()" style="background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:0 12px;color:var(--text2);cursor:pointer;font-family:inherit;font-size:12px;">+추가</button>
+          </div>
+        </div>
+        <button class="ob-btn" onclick="finishSetup('model')">냉장고 등록 완료 →</button>
+      </div>
+
+      <!-- 직접 설정 링크는 힌트 텍스트에 인라인으로 이동됨 -->
+    </div>
+
+    <!-- 직접 설정 (펼쳐짐) -->
+    <div id="ob-manual" style="display:none;">
+      <button class="ob-back" onclick="hideManualSetup()">← 모델명 검색으로</button>
+      <div class="ob-label">타입 선택 (칸 자동 채워짐)</div>
+      <div class="path-row" style="grid-template-columns:1fr 1fr;margin-bottom:14px;">
+
+        <!-- 4도어 -->
+        <button class="path-btn" data-zones='["냉장실 좌1단","냉장실 좌2단","냉장실 좌3단","냉장실 우1단","냉장실 우2단","야채칸 좌","야채칸 우","문짝 상단","문짝 중단","문짝 하단","냉동실 상단","냉동실 슬라이드1","냉동실 슬라이드2"]' onclick="applyPreset(this)" style="padding:14px 8px;">
+          <svg width="56" height="64" viewBox="0 0 56 64" fill="none" style="display:block;margin:0 auto 8px;">
+            <!-- 본체 그림자 -->
+            <rect x="4" y="5" width="50" height="57" rx="6" fill="#B8CDE0" opacity="0.4"/>
+            <!-- 본체 -->
+            <rect x="2" y="2" width="50" height="57" rx="6" fill="#A8C8E8"/>
+            <!-- 상단 냉장 좌문 -->
+            <rect x="4" y="4" width="22" height="35" rx="4" fill="#C5DDF4"/>
+            <!-- 상단 냉장 우문 -->
+            <rect x="28" y="4" width="22" height="35" rx="4" fill="#C5DDF4"/>
+            <!-- 문 안쪽 패널 좌 -->
+            <rect x="7" y="8" width="16" height="27" rx="3" fill="#D8ECFF"/>
+            <!-- 문 안쪽 패널 우 -->
+            <rect x="31" y="8" width="16" height="27" rx="3" fill="#D8ECFF"/>
+            <!-- 세로 가운데 구분 -->
+            <rect x="25" y="2" width="4" height="57" rx="0" fill="#A8C8E8"/>
+            <line x1="27" y1="2" x2="27" y2="59" stroke="#90B8D8" stroke-width="1"/>
+            <!-- 가로 중간 구분 띠 -->
+            <rect x="2" y="40" width="50" height="4" rx="0" fill="#90B8D8"/>
+            <!-- 하단 냉동 좌문 -->
+            <rect x="4" y="45" width="22" height="13" rx="4" fill="#B8D4EE"/>
+            <!-- 하단 냉동 우문 -->
+            <rect x="28" y="45" width="22" height="13" rx="4" fill="#B8D4EE"/>
+            <!-- 하단 패널 좌 -->
+            <rect x="7" y="47" width="16" height="9" rx="2" fill="#C8E0F4"/>
+            <!-- 하단 패널 우 -->
+            <rect x="31" y="47" width="16" height="9" rx="2" fill="#C8E0F4"/>
+            <!-- 손잡이 냉장 (세로) -->
+            <rect x="23" y="17" width="3" height="12" rx="1.5" fill="#7AAAC8"/>
+            <rect x="28" y="17" width="3" height="12" rx="1.5" fill="#7AAAC8"/>
+            <!-- 손잡이 냉동 (가로) -->
+            <rect x="9" y="51" width="10" height="2.5" rx="1.2" fill="#7AAAC8"/>
+            <rect x="35" y="51" width="10" height="2.5" rx="1.2" fill="#7AAAC8"/>
+            <!-- 발 -->
+            <rect x="8" y="57" width="8" height="5" rx="2" fill="#7A9AB8"/>
+            <rect x="38" y="57" width="8" height="5" rx="2" fill="#7A9AB8"/>
+          </svg>
+          <div class="pn" style="font-size:12px;">4도어</div>
+        </button>
+
+        <!-- 양문형 -->
+        <button class="path-btn" data-zones='["냉장실 상단","냉장실 중단","냉장실 하단","냉동실 좌상단","냉동실 슬라이드1","냉동실 슬라이드2","문짝 우상단","문짝 우하단"]' onclick="applyPreset(this)" style="padding:14px 8px;">
+          <svg width="56" height="64" viewBox="0 0 56 64" fill="none" style="display:block;margin:0 auto 8px;">
+            <!-- 본체 그림자 -->
+            <rect x="4" y="5" width="50" height="57" rx="6" fill="#B8CDE0" opacity="0.4"/>
+            <!-- 본체 -->
+            <rect x="2" y="2" width="50" height="57" rx="6" fill="#A8C8E8"/>
+            <!-- 좌 냉동문 (좁게) -->
+            <rect x="4" y="4" width="20" height="53" rx="4" fill="#B8D4EE"/>
+            <rect x="6" y="7" width="16" height="47" rx="3" fill="#C8E0F4"/>
+            <!-- 좌 내부 선반 표시 -->
+            <line x1="7" y1="22" x2="21" y2="22" stroke="#A8C8E4" stroke-width="1.2"/>
+            <line x1="7" y1="38" x2="21" y2="38" stroke="#A8C8E4" stroke-width="1.2"/>
+            <!-- 좌 손잡이 (우측에) -->
+            <rect x="22" y="23" width="3" height="14" rx="1.5" fill="#7AAAC8"/>
+            <!-- 가운데 구분 -->
+            <rect x="25" y="2" width="5" height="57" rx="0" fill="#90B8D8"/>
+            <line x1="27.5" y1="2" x2="27.5" y2="59" stroke="#80A8C8" stroke-width="1"/>
+            <!-- 우 냉장문 (넓게) -->
+            <rect x="31" y="4" width="23" height="53" rx="4" fill="#C5DDF4"/>
+            <rect x="33" y="7" width="19" height="47" rx="3" fill="#D8ECFF"/>
+            <!-- 우 내부 선반 표시 -->
+            <line x1="34" y1="20" x2="51" y2="20" stroke="#A8C8E4" stroke-width="1.2"/>
+            <line x1="34" y1="36" x2="51" y2="36" stroke="#A8C8E4" stroke-width="1.2"/>
+            <!-- 우 손잡이 (좌측에) -->
+            <rect x="29" y="23" width="3" height="14" rx="1.5" fill="#7AAAC8"/>
+            <!-- 디스펜서 (좌 하단) -->
+            <rect x="7" y="44" width="14" height="8" rx="3" fill="#90B8D8"/>
+            <rect x="10" y="46" width="5" height="4" rx="2" fill="#7AAAC8"/>
+            <!-- 발 -->
+            <rect x="8" y="57" width="8" height="5" rx="2" fill="#7A9AB8"/>
+            <rect x="38" y="57" width="8" height="5" rx="2" fill="#7A9AB8"/>
+          </svg>
+          <div class="pn" style="font-size:12px;">양문형</div>
+        </button>
+
+        <!-- 일반형: 상단 냉장(작게) + 하단 냉동(크게) -->
+        <button class="path-btn" data-zones='["냉장실 상단","냉장실 중단","냉장실 하단","야채칸","문짝 상단","문짝 하단","냉동실"]' onclick="applyPreset(this)" style="padding:14px 8px;">
+          <svg width="46" height="64" viewBox="0 0 46 64" fill="none" style="display:block;margin:0 auto 8px;">
+            <!-- 본체 그림자 -->
+            <rect x="3" y="5" width="42" height="57" rx="6" fill="#B8CDE0" opacity="0.4"/>
+            <!-- 본체 -->
+            <rect x="1" y="2" width="42" height="57" rx="6" fill="#A8C8E8"/>
+            <!-- 상단 냉장문 (작게, 약 1/3) -->
+            <rect x="3" y="4" width="38" height="18" rx="4" fill="#C5DDF4"/>
+            <rect x="5" y="6" width="34" height="14" rx="3" fill="#D8ECFF"/>
+            <!-- 패널 장식 (디스플레이 느낌) -->
+            <rect x="12" y="8" width="12" height="5" rx="2" fill="#90C8E0"/>
+            <circle cx="9" cy="10.5" r="2" fill="#F4A0A0"/>
+            <circle cx="27" cy="10.5" r="2" fill="#7EC8A0"/>
+            <!-- 냉장 손잡이 -->
+            <rect x="5" y="13" width="3" height="7" rx="1.5" fill="#7AAAC8"/>
+            <!-- 가로 구분 띠 -->
+            <rect x="1" y="23" width="42" height="4" rx="0" fill="#90B8D8"/>
+            <!-- 하단 냉동문 (크게, 약 2/3) -->
+            <rect x="3" y="28" width="38" height="29" rx="4" fill="#B8D4EE"/>
+            <rect x="5" y="30" width="34" height="25" rx="3" fill="#C8E0F4"/>
+            <!-- 냉동 내부 선 -->
+            <line x1="6" y1="40" x2="38" y2="40" stroke="#A8C8E4" stroke-width="1.2"/>
+            <line x1="6" y1="48" x2="38" y2="48" stroke="#A8C8E4" stroke-width="1.2"/>
+            <!-- 냉동 손잡이 -->
+            <rect x="5" y="38" width="3" height="7" rx="1.5" fill="#7AAAC8"/>
+            <!-- 발 -->
+            <rect x="6" y="57" width="8" height="5" rx="2" fill="#7A9AB8"/>
+            <rect x="28" y="57" width="8" height="5" rx="2" fill="#7A9AB8"/>
+          </svg>
+          <div class="pn" style="font-size:12px;">일반형</div>
+        </button>
+
+        <!-- 김치냉장고: 서랍 3단, 민트/그린 파스텔 -->
+        <button class="path-btn" data-zones='["상단 1칸","상단 2칸","중단 1칸","중단 2칸","하단 서랍","김치 전용칸"]' onclick="applyPreset(this)" style="padding:14px 8px;">
+          <svg width="46" height="64" viewBox="0 0 46 64" fill="none" style="display:block;margin:0 auto 8px;">
+            <!-- 본체 그림자 -->
+            <rect x="3" y="5" width="42" height="57" rx="6" fill="#B0D8C0" opacity="0.4"/>
+            <!-- 본체 -->
+            <rect x="1" y="2" width="42" height="57" rx="6" fill="#A8D8B8"/>
+            <!-- 서랍 1 -->
+            <rect x="3" y="4" width="38" height="15" rx="4" fill="#C0E8D0"/>
+            <rect x="5" y="6" width="34" height="11" rx="3" fill="#D4F0E0"/>
+            <!-- 손잡이 1 -->
+            <rect x="14" y="10" width="16" height="3.5" rx="1.8" fill="#80C8A0"/>
+            <!-- 구분 -->
+            <rect x="1" y="20" width="42" height="3" rx="0" fill="#88C8A0"/>
+            <!-- 서랍 2 -->
+            <rect x="3" y="24" width="38" height="15" rx="4" fill="#C0E8D0"/>
+            <rect x="5" y="26" width="34" height="11" rx="3" fill="#D4F0E0"/>
+            <!-- 손잡이 2 -->
+            <rect x="14" y="30" width="16" height="3.5" rx="1.8" fill="#80C8A0"/>
+            <!-- 구분 -->
+            <rect x="1" y="40" width="42" height="3" rx="0" fill="#88C8A0"/>
+            <!-- 서랍 3 (크게) -->
+            <rect x="3" y="44" width="38" height="13" rx="4" fill="#B4E0C8"/>
+            <rect x="5" y="46" width="34" height="9" rx="3" fill="#C8EDD8"/>
+            <!-- 손잡이 3 -->
+            <rect x="14" y="49.5" width="16" height="3.5" rx="1.8" fill="#70B890"/>
+            <!-- 김치 포인트 (빨간 도트) -->
+            <circle cx="8" cy="12" r="2.5" fill="#F4A0A0"/>
+            <circle cx="8" cy="32" r="2.5" fill="#F4A0A0"/>
+            <!-- 발 -->
+            <rect x="6" y="57" width="8" height="5" rx="2" fill="#70A888"/>
+            <rect x="28" y="57" width="8" height="5" rx="2" fill="#70A888"/>
+          </svg>
+          <div class="pn" style="font-size:12px;">김치냉장고</div>
+        </button>
+
+      </div>
+      <div class="ob-label" style="margin-bottom:6px;">칸 구성</div>
+      <div class="preset-chips">
+        <button class="pchip" onclick="addZoneManual('냉장실')">+냉장실</button>
+        <button class="pchip" onclick="addZoneManual('냉동실')">+냉동실</button>
+        <button class="pchip" onclick="addZoneManual('야채칸')">+야채칸</button>
+        <button class="pchip" onclick="addZoneManual('음료칸')">+음료칸</button>
+        <button class="pchip" onclick="addZoneManual('문짝 상단')">+문짝상단</button>
+        <button class="pchip" onclick="addZoneManual('문짝 하단')">+문짝하단</button>
+        <button class="pchip" onclick="addZoneManual('김치칸')">+김치칸</button>
+        <button class="pchip" onclick="addZoneManual('와인칸')">+와인칸</button>
+      </div>
+      <div class="zone-tags" id="manual-zone-tags" style="margin-bottom:8px;"></div>
+      <div style="display:flex;gap:7px;margin-bottom:14px;">
+        <input class="ob-input" id="manual-zone-inp" placeholder="직접 입력..." style="flex:1;font-size:13px;padding:8px 11px;" onkeydown="if(event.key==='Enter')addZoneManualCustom()">
+        <button onclick="addZoneManualCustom()" style="background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:0 12px;color:var(--text2);cursor:pointer;font-family:inherit;font-size:12px;">+추가</button>
+      </div>
+      <button class="ob-btn" onclick="finishSetup('manual')">냉장고 등록 완료 →</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     MAIN APP
+══════════════════════════════════ -->
+<div id="screen-main" class="screen">
+  <!-- HEADER -->
+  <div class="app-header">
+    <div class="hdr-top">
+      <div class="hdr-logo" onclick="showStatsPopup()">
+        <span class="logo-em">🧊</span>
+        <span class="logo-name" id="hdr-nick">냉장고</span>
+        <span class="logo-model" id="hdr-model"></span>
+      </div>
+      <div class="hdr-right">
+        <div class="stat-badge warn" id="stat-warn" style="display:none" onclick="showStatsPopup()">
+          <span class="sv" id="stat-warn-n">0</span>⚠️
+        </div>
+        <div class="stat-badge" onclick="showStatsPopup()">
+          <span class="sv" id="stat-total">0</span>개
+        </div>
+      </div>
+    </div>
+    <div class="fridge-tabs" id="fridge-tabs"></div>
+  </div>
+
+  <!-- PAGES -->
+  <div id="page-fridge" class="page active fridge-page">
+    <div class="fridge-viewport" id="fridge-viewport">
+      <div class="fridge-body">
+        <div class="fridge-inner" id="fridge-inner"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="page-expiry" class="page">
+    <div class="page-content">
+      <div class="section-hd">
+        <span class="section-ttl">⏰ 유통기한 관리</span>
+        <span class="cnt-badge" id="exp-count">0개</span>
+      </div>
+      <div id="exp-expired-g" class="exp-group" style="display:none">
+        <div class="exp-group-title red">❌ 유통기한 지남</div>
+        <div id="exp-expired-list"></div>
+      </div>
+      <div id="exp-soon-g" class="exp-group" style="display:none">
+        <div class="exp-group-title yellow">⚠️ 3일 내 만료</div>
+        <div id="exp-soon-list"></div>
+      </div>
+      <div id="exp-ok-g" class="exp-group" style="display:none">
+        <div class="exp-group-title green">✅ 신선함</div>
+        <div id="exp-ok-list"></div>
+      </div>
+      <div id="exp-empty" class="empty-state"><div class="ei">✅</div><p>모두 신선해요!</p></div>
+    </div>
+  </div>
+
+  <div id="page-recipe" class="page">
+    <div class="page-content">
+      <div class="recipe-hero">
+        <h3>🍳 AI 레시피 추천</h3>
+        <p>냉장고 재료로 만들 수 있는 요리를 찾아드려요</p>
+        <div class="recipe-mode-grid">
+          <button class="rmode-btn active" id="rm-all" onclick="setRM('all')">🧊 전체 재료</button>
+          <button class="rmode-btn" id="rm-pick" onclick="setRM('pick')">✋ 재료 선택</button>
+          <button class="rmode-btn" id="rm-near" onclick="setRM('near')">⚡ 냉털</button>
+          <button class="rmode-btn" id="rm-shop" onclick="setRM('shop')">🛒 1~2개 추가</button>
+        </div>
+        <div id="rm-pick-area" style="display:none;margin-bottom:10px;">
+          <div class="ing-tags-sel" id="rm-ing-tags"></div>
+        </div>
+        <div id="rm-desc" style="font-size:11px;color:var(--text3);margin-bottom:10px;"></div>
+        <button class="btn-recipe" id="btn-recipe" onclick="getRecipe()">✨ 레시피 추천받기</button>
+      </div>
+      <div id="recipe-output"></div>
+    </div>
+  </div>
+
+  <div id="page-my" class="page">
+    <div class="my-content">
+      <div class="my-section-title">내 냉장고</div>
+      <div class="my-fridge-list" id="my-fridge-list"></div>
+      <div class="my-add-fridge" onclick="openAddFridgeModal()">
+        <span>＋</span> 냉장고 추가 (김냉·와인냉장고 등)
+      </div>
+      <div class="my-section-title">데이터 관리</div>
+      <button class="my-reset-btn" onclick="confirmResetAll()">
+        <span>⚠️</span> 전체 초기화 (모든 냉장고·재료 삭제)
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- FAB -->
+<button class="fab" id="fab" onclick="openAddItemModal()">＋</button>
+<button class="fab-scan" id="fab-scan" onclick="openScanModal()" title="사진으로 한번에 등록">📷</button>
+
+<!-- ══ SCAN MODAL ══ -->
+<div class="overlay" id="scan-overlay" onclick="if(event.target===this)closeScanModal()">
+  <div class="modal" style="max-height:92vh;">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📷 사진으로 한번에 등록</div>
+
+    <!-- 이미지 업로드 영역 -->
+    <div id="scan-upload-area" class="scan-preview-wrap" onclick="document.getElementById('scan-file').click()">
+      <div class="scan-placeholder" id="scan-placeholder">
+        <div class="sp-icon">📸</div>
+        <p>냉장고 칸을 촬영하거나<br>사진을 선택해주세요</p>
+      </div>
+      <img id="scan-preview-img" style="display:none;">
+    </div>
+    <input type="file" id="scan-file" accept="image/*" capture="environment" style="display:none" onchange="handleScanImg(event)">
+
+    <!-- 분석 전 버튼 -->
+    <div id="scan-btn-area">
+      <button class="btn-save" id="scan-analyze-btn" onclick="analyzeScanImg()" style="display:none;">
+        🤖 AI로 재료 인식하기
+      </button>
+    </div>
+
+    <!-- 로딩 -->
+    <div class="scan-loading" id="scan-loading" style="display:none;">
+      <div class="spin"></div>
+      <div style="font-size:13px;">AI가 재료를 인식 중이에요...</div>
+      <div style="font-size:11px;color:var(--text3);">냉장고 안을 밝게 찍을수록 정확해요</div>
+    </div>
+
+    <!-- 인식 결과 -->
+    <div id="scan-result-area" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div style="font-size:13px;font-weight:700;" id="scan-result-title">인식된 재료</div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="scanSelectAll()" style="font-size:11px;color:var(--ice);background:none;border:none;cursor:pointer;font-family:inherit;">전체선택</button>
+          <button onclick="scanDeselectAll()" style="font-size:11px;color:var(--text3);background:none;border:none;cursor:pointer;font-family:inherit;">전체해제</button>
+        </div>
+      </div>
+
+      <!-- 저장할 칸 선택 -->
+      <div style="margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+        <span style="font-size:12px;color:var(--text2);white-space:nowrap;">저장할 칸:</span>
+        <select class="fi" id="scan-target-zone" style="font-size:12px;padding:6px 10px;flex:1;"></select>
+      </div>
+
+      <div class="scan-result-list" id="scan-result-list"></div>
+
+      <button class="btn-save" id="scan-register-btn" onclick="registerScanItems()" style="margin-top:14px;">
+        ✅ 선택한 항목 등록하기
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav" id="bottom-nav">
+  <div class="bn-row">
+    <button class="bn-item active" id="bn-fridge" onclick="showPage('fridge')"><span class="bn-icon">🧊</span>냉장고</button>
+    <button class="bn-item" id="bn-expiry" onclick="showPage('expiry')"><span class="bn-icon">⏰</span>유통기한</button>
+    <button class="bn-item" id="bn-recipe" onclick="showPage('recipe')"><span class="bn-icon">👨‍🍳</span>레시피</button>
+    <button class="bn-item" id="bn-my" onclick="showPage('my')"><span class="bn-icon">⚙️</span>마이</button>
+  </div>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<!-- ── ADD/EDIT ITEM MODAL ── -->
+<div class="overlay" id="item-modal-overlay" onclick="if(event.target===this)closeItemModal()">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="item-modal-title">추가하기</div>
+    <div class="type-tog">
+      <button class="tt-btn ing active" id="tt-ing" onclick="setItemType('ingredient')">🧄 재료</button>
+      <button class="tt-btn food" id="tt-food" onclick="setItemType('food')">🍱 음식</button>
+    </div>
+    <div class="fg">
+      <label>이미지 / 이모지</label>
+      <div class="ep-row">
+        <div class="ep-preview" id="ep-prev" onclick="document.getElementById('img-file').click()">🥕</div>
+        <div class="ep-right">
+          <div class="ep-cat-tabs" id="ep-cats"></div>
+          <div class="ep-grid" id="ep-grid"></div>
+        </div>
+      </div>
+      <div class="img-upload-area" onclick="document.getElementById('img-file').click()">
+        📷 사진 직접 추가
+        <input type="file" id="img-file" accept="image/*" style="display:none" onchange="handleImg(event)">
+      </div>
+    </div>
+    <div class="fg"><label>이름</label><input class="fi" id="f-name" placeholder="예: 당근 / 김치찌개"></div>
+    <div class="frow">
+      <div class="fg"><label>보관 칸</label><select class="fi" id="f-zone"></select></div>
+      <div class="fg"><label>수량</label><input class="fi" id="f-qty" placeholder="예: 2개, 300g"></div>
+    </div>
+    <div class="fg"><label>유통기한</label><input type="date" class="fi" id="f-expiry"></div>
+    <div class="fg" id="fg-made" style="display:none"><label>만든 날짜</label><input type="date" class="fi" id="f-made"></div>
+    <div class="fg" id="fg-ings" style="display:none">
+      <label>사용 재료 (Enter로 추가)</label>
+      <div class="ing-tag-input-area" id="ing-area" onclick="document.getElementById('itag-inp').focus()">
+        <input class="itag-text" id="itag-inp" placeholder="재료 입력 후 Enter" onkeydown="handleIngTag(event)">
+      </div>
+    </div>
+    <div class="fg"><label>메모</label><input class="fi" id="f-memo" placeholder="예: 국산, 냉동 보관..."></div>
+    <button class="btn-save" onclick="saveItem()">저장하기</button>
+  </div>
+</div>
+
+<!-- ── ACTION SHEET (item touch) ── -->
+<div class="overlay" id="action-overlay" onclick="if(event.target===this)closeAction()">
+  <div class="action-sheet">
+    <div class="modal-handle"></div>
+    <div class="as-item-preview">
+      <div class="as-em" id="as-em">🥕</div>
+      <div class="as-info">
+        <div class="as-name" id="as-name">—</div>
+        <div class="as-meta" id="as-meta">—</div>
+      </div>
+    </div>
+    <div class="as-actions">
+      <button class="as-btn" onclick="editFromAction()">✏️ 수정하기</button>
+      <button class="as-btn" onclick="moveFromAction()">📦 보관 위치 이동</button>
+      <button class="as-btn danger" onclick="deleteFromAction()">🗑️ 삭제하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MOVE ZONE MODAL ── -->
+<div class="overlay" id="move-overlay" onclick="if(event.target===this)closeMoveModal()">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">보관 위치 이동</div>
+    <div id="move-item-info" style="font-size:13px;color:var(--text2);margin-bottom:12px;"></div>
+    <div class="fg"><label>이동할 칸 선택</label>
+      <div class="zone-sel-grid" id="zone-sel-grid"></div>
+    </div>
+    <button class="btn-save" id="move-confirm" onclick="confirmMove()" style="display:none;">이동하기</button>
+  </div>
+</div>
+
+<!-- ── STATS POPUP ── -->
+<div class="overlay" id="stats-overlay" onclick="if(event.target===this)closeStats()">
+  <div class="stats-popup">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="stats-title">냉장고 현황</div>
+    <div class="sp-grid">
+      <div class="sp-card"><div class="sp-num" id="sp-total">0</div><div class="sp-label">전체</div></div>
+      <div class="sp-card"><div class="sp-num" style="color:var(--warm);" id="sp-food">0</div><div class="sp-label">보관 음식</div></div>
+      <div class="sp-card"><div class="sp-num" style="color:var(--yellow);" id="sp-warn">0</div><div class="sp-label">만료 임박</div></div>
+      <div class="sp-card"><div class="sp-num" style="color:var(--red);" id="sp-over">0</div><div class="sp-label">기한 초과</div></div>
+    </div>
+    <div class="sp-list" id="sp-list"></div>
+  </div>
+</div>
+
+<!-- ── ADD FRIDGE / FRIDGE EDIT MODAL ── -->
+<div class="overlay" id="fridge-modal-overlay" onclick="if(event.target===this)closeFridgeModal()">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="fridge-modal-title">냉장고 추가</div>
+    <div class="fg">
+      <label>닉네임</label>
+      <input class="fi" id="fm-nick" placeholder="예: 주방 냉장고, 김냉...">
+    </div>
+    <div class="fg">
+      <label>모델명 (선택)</label>
+      <div style="display:flex;gap:7px;">
+        <input class="fi" id="fm-model" placeholder="LG DIOS V9500..." style="flex:1;">
+        <button onclick="searchModelForFridge()" id="fm-search-btn" style="background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:0 12px;color:var(--text2);cursor:pointer;font-family:inherit;font-size:12px;white-space:nowrap;">AI검색</button>
+      </div>
+    </div>
+    <div class="fg">
+      <label>칸 구성</label>
+      <div class="preset-chips" style="margin-bottom:8px;">
+        <button class="pchip" onclick="addFmZone('냉장실')">+냉장실</button>
+        <button class="pchip" onclick="addFmZone('냉동실')">+냉동실</button>
+        <button class="pchip" onclick="addFmZone('야채칸')">+야채칸</button>
+        <button class="pchip" onclick="addFmZone('문짝')">+문짝</button>
+        <button class="pchip" onclick="addFmZone('김치칸')">+김치칸</button>
+        <button class="pchip" onclick="addFmZone('와인칸')">+와인칸</button>
+      </div>
+      <div class="zone-edit-list" id="fm-zone-list"></div>
+      <div style="display:flex;gap:7px;margin-top:6px;">
+        <input class="fi" id="fm-zone-inp" placeholder="칸 이름 추가..." style="font-size:13px;padding:8px 11px;" onkeydown="if(event.key==='Enter')addFmZoneCustom()">
+        <button onclick="addFmZoneCustom()" style="background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:0 12px;color:var(--text2);cursor:pointer;font-family:inherit;font-size:12px;">+추가</button>
+      </div>
+    </div>
+    <button class="btn-save" onclick="saveFridgeModal()">저장하기</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════
+//  DATA MODEL
+// ══════════════════════════════════
+// state.fridges = [{id, nick, model, zones:[], setupType}]
+// state.items   = [{id, fridgeId, type, name, emoji, imageData, zone, qty, expiry, made, ings:[], memo}]
+// state.activeFridgeId = string
+
+let state = { fridges:[], items:[], activeFridgeId:null };
+
+function loadState(){
+  const s = localStorage.getItem('fridgeFriend_v3');
+  if(s) state = JSON.parse(s);
+}
+function saveState(){ localStorage.setItem('fridgeFriend_v3', JSON.stringify(state)); }
+
+// ══════════════════════════════════
+//  EMOJI DATA
+// ══════════════════════════════════
+const EMOJIS = {
+  '채소':['🥦','🥕','🧅','🧄','🌽','🥒','🍅','🌶️','🥬','🫑','🥑','🥔','🫛','🥗'],
+  '과일':['🍎','🍊','🍋','🍇','🍓','🍑','🍒','🥭','🍍','🍌','🫐','🥝','🍏'],
+  '육류':['🥩','🍗','🥓','🌭','🍖'],
+  '해산물':['🐟','🦐','🦑','🦀','🦞','🐙','🍣','🦪'],
+  '유제품':['🥛','🧀','🥚','🧈'],
+  '가공식품':['🍜','🫙','🥫','🥡','🧂','🍯','🫒','🍞'],
+  '음료':['🧃','🥤','🍺','🍷','🍵','☕','🧋'],
+  '음식':['🍱','🍲','🥘','🍛','🍜','🍕','🍔','🌮','🥗','🍳','🍙','🥙'],
+};
+
+// ══════════════════════════════════
+//  ONBOARDING
+// ══════════════════════════════════
+let obZones = [];
+
+function showManualSetup(){
+  document.getElementById('ob-main').style.display='none';
+  document.getElementById('ob-manual').style.display='block';
+}
+function hideManualSetup(){
+  document.getElementById('ob-manual').style.display='none';
+  document.getElementById('ob-main').style.display='block';
+}
+
+async function searchModel(){
+  const val = document.getElementById('ob-model').value.trim();
+  if(!val){showToast('모델명을 입력해주세요');return;}
+  const btn = document.getElementById('search-btn');
+  // 검색 중 UI 처리
+  btn.disabled=true; btn.textContent='분석중...';
+  try{
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,
+        messages:[{role:'user',content:`냉장고 모델명 "${val}"의 실제 내부 칸 구성을 한국어 배열로만 응답해줘.
+
+규칙:
+- 냉장실은 실제 단 수대로 (예: 좌1단/좌2단/좌3단, 우1단/우2단 등 각 단 별로 따로)
+- 냉동실도 단/서랍 별로 따로
+- 야채칸, 문짝칸도 각각 별도 항목으로
+- 삼성 RF90DG91114E 예시: ["냉장실 좌1단","냉장실 좌2단","냉장실 좌3단","냉장실 우1단","냉장실 우2단","냉장실 우3단","야채칸 좌","야채칸 우","문짝 상단","문짝 중단","문짝 하단","냉동실 상단","냉동실 중단","냉동실 슬라이드1","냉동실 슬라이드2"]
+- 모르는 모델은 비슷한 타입(2도어/4도어/양문형)으로 추정해서 상세히
+- 배열만 출력, 다른 텍스트 없이`}]})
+    });
+    const data=await res.json();
+    const text=data.content?.[0]?.text?.trim()||'';
+    obZones=JSON.parse(text);
+    if(!Array.isArray(obZones)||obZones.length===0)throw new Error();
+  }catch{obZones=['냉장실 좌1단','냉장실 우1단','야채칸','문짝 상단','냉동실'];}
+  renderModelResult();
+  document.getElementById('model-result').style.display='block';
+  btn.disabled=false; btn.textContent='재검색';
+}
+
+function renderModelResult(){
+  document.getElementById('mp-zones').innerHTML = obZones.map(z=>`<span class="mp-zone">${z}</span>`).join('');
+  renderModelZoneTags();
+}
+function renderModelZoneTags(){
+  document.getElementById('model-zone-tags').innerHTML = obZones.map((z,i)=>
+    `<span class="ztag">${z}<button onclick="obZones.splice(${i},1);renderModelResult()">×</button></span>`
+  ).join('');
+}
+function addZoneModel(){
+  const v=document.getElementById('model-zone-inp').value.trim();
+  if(v&&!obZones.includes(v)){obZones.push(v);renderModelResult();}
+  document.getElementById('model-zone-inp').value='';
+}
+
+function applyPreset(btn){
+  document.querySelectorAll('#ob-manual .path-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  obZones=JSON.parse(btn.dataset.zones);
+  renderManualZoneTags();
+}
+function renderManualZoneTags(){
+  document.getElementById('manual-zone-tags').innerHTML = obZones.map((z,i)=>
+    `<span class="ztag">${z}<button onclick="obZones.splice(${i},1);renderManualZoneTags()">×</button></span>`
+  ).join('');
+}
+function addZoneManual(name){if(!obZones.includes(name)){obZones.push(name);renderManualZoneTags();}}
+function addZoneManualCustom(){
+  const v=document.getElementById('manual-zone-inp').value.trim();
+  if(v&&!obZones.includes(v)){obZones.push(v);renderManualZoneTags();}
+  document.getElementById('manual-zone-inp').value='';
+}
+
+function finishSetup(type){
+  if(obZones.length===0){showToast('칸을 하나 이상 추가해주세요');return;}
+  const nick=document.getElementById('ob-nick').value.trim()||'우리집 냉장고';
+  const model=type==='model'?document.getElementById('ob-model').value.trim():'';
+  const fridge={id:Date.now().toString(),nick,model,zones:[...obZones],setupType:type};
+  state.fridges.push(fridge);
+  state.activeFridgeId=fridge.id;
+  saveState();
+  initMainApp();
+}
+
+// ══════════════════════════════════
+//  MAIN APP
+// ══════════════════════════════════
+function initMainApp(){
+  document.getElementById('screen-onboard').classList.remove('active');
+  document.getElementById('screen-main').classList.add('active');
+  document.getElementById('fab').style.display='flex';
+  document.getElementById('fab-scan').style.display='flex';
+  document.getElementById('bottom-nav').style.display='block';
+  renderFridgeTabs();
+  renderFridge();
+  updateHeaderStats();
+}
+
+function activeFridge(){
+  return state.fridges.find(f=>f.id===state.activeFridgeId)||state.fridges[0];
+}
+function activeItems(){
+  return state.items.filter(i=>i.fridgeId===state.activeFridgeId);
+}
+
+// ── FRIDGE TABS ──
+function renderFridgeTabs(){
+  const el=document.getElementById('fridge-tabs');
+  el.innerHTML = state.fridges.map(f=>
+    `<button class="ftab${f.id===state.activeFridgeId?' active':''}" onclick="switchFridge('${f.id}')">${f.nick}</button>`
+  ).join('')+`<button class="ftab-add" onclick="openAddFridgeModal()" title="냉장고 추가">＋</button>`;
+}
+
+function switchFridge(id){
+  state.activeFridgeId=id;
+  saveState();
+  renderFridgeTabs();
+  renderFridge();
+  updateHeaderStats();
+}
+
+// ── FRIDGE VISUAL ──
+function renderFridge(){
+  window._slotZones={};  // 매 렌더마다 초기화
+  const fridge=activeFridge();
+  if(!fridge){document.getElementById('fridge-inner').innerHTML='<div class="empty-state"><div class="ei">🧊</div><p>냉장고를 먼저 등록해주세요</p></div>';return;}
+
+  document.getElementById('hdr-nick').textContent=fridge.nick;
+  document.getElementById('hdr-model').textContent=fridge.model?`· ${fridge.model}`:'';
+
+  const items=activeItems();
+  const inner=document.getElementById('fridge-inner');
+
+  // group zones into rows (2 per row for visual layout)
+  const zones=fridge.zones;
+  let html='';
+
+  // detect section breaks (냉동 vs 냉장)
+  const coldSections = groupZonesIntoSections(zones);
+  coldSections.forEach((section,si)=>{
+    if(si>0){
+      html+=`<div class="section-divider"><span class="section-label">❄️ ${section.label}</span></div>`;
+    }
+    // pair zones for 2-column layout
+    for(let i=0;i<section.zones.length;i+=2){
+      const z1=section.zones[i], z2=section.zones[i+1];
+      if(z2){
+        html+=`<div class="slot-row cols-2">${renderSlot(z1,items)}${renderSlot(z2,items)}</div>`;
+      }else{
+        html+=`<div class="slot-row cols-1">${renderSlot(z1,items)}</div>`;
+      }
+    }
+  });
+
+  inner.innerHTML=html||'<div class="empty-state"><div class="ei">🫙</div><p>칸이 없어요<br>마이페이지에서 칸을 추가하세요</p></div>';
+  bindSlotDrop();
+}
+
+function groupZonesIntoSections(zones){
+  const sections=[];
+  let cur={label:'냉장',zones:[]};
+  zones.forEach(z=>{
+    const lower=z.toLowerCase();
+    const isFreezer=lower.includes('냉동')||lower.includes('freezer');
+    if(isFreezer && cur.label==='냉장' && cur.zones.length>0){
+      sections.push(cur);
+      cur={label:'냉동',zones:[]};
+    }
+    cur.zones.push(z);
+  });
+  if(cur.zones.length>0) sections.push(cur);
+  return sections;
+}
+
+function renderSlot(zoneName, allItems){
+  const zItems=allItems.filter(i=>i.zone===zoneName);
+  const MAX_SHOW=4;
+  let itemsHTML='';
+  if(zItems.length>0){
+    const show=zItems.slice(0,MAX_SHOW);
+    const more=zItems.length-MAX_SHOW;
+    itemsHTML='<div class="slot-items">';
+    show.forEach(item=>{
+      const exp=item.expiry?getExpInfo(daysLeft(item.expiry)):{cls:'',label:''};
+      const thumb=item.imageData
+        ?`<img class="ci-img" src="${item.imageData}">`
+        :`<span class="ci-em">${item.emoji||'🥕'}</span>`;
+      itemsHTML+=`<div class="item-chip" data-id="${item.id}" draggable="true">${thumb}<span class="ci-name">${item.name}</span>${exp.label?`<span class="ci-exp ${exp.cls}">${exp.label}</span>`:''}</div>`;
+    });
+    if(more>0) itemsHTML+=`<span class="more-badge">외 ${more}개</span>`;
+    itemsHTML+='</div>';
+  }
+  // zone 이름을 slotZoneMap에 id로 저장해서 onclick 안전하게 전달
+  const slotId='slot-'+Math.random().toString(36).slice(2,8);
+  window._slotZones=window._slotZones||{};
+  window._slotZones[slotId]=zoneName;
+  return `<div class="fridge-slot" data-zone-id="${slotId}" data-zone="${zoneName.replace(/"/g,'&quot;')}" onclick="handleSlotClick(event,window._slotZones['${slotId}'])">
+    <div class="slot-label"><span>${zoneName}</span><span class="slot-add-hint">+ 추가</span></div>
+    ${itemsHTML}
+  </div>`;
+}
+
+function escHtml(s){return s.replace(/'/g,"\\'").replace(/"/g,'&quot;');}
+
+// ── SLOT CLICK / ITEM TOUCH ──
+function handleSlotClick(e, zoneName){
+  // if clicked on item chip
+  const chip=e.target.closest('.item-chip');
+  if(chip){
+    e.stopPropagation();
+    openActionSheet(chip.dataset.id);
+    return;
+  }
+  // clicked on slot → add item
+  openAddItemModal(zoneName);
+}
+
+// ── DRAG & DROP ──
+let dragItemId=null;
+function bindSlotDrop(){
+  document.querySelectorAll('.item-chip[draggable]').forEach(chip=>{
+    chip.addEventListener('dragstart',e=>{
+      dragItemId=chip.dataset.id;
+      chip.classList.add('dragging');
+      const item=state.items.find(i=>i.id===dragItemId);
+      if(item){
+        document.getElementById('dg-em').textContent=item.imageData?'📦':(item.emoji||'🥕');
+        document.getElementById('dg-name').textContent=item.name;
+      }
+      e.dataTransfer.effectAllowed='move';
+    });
+    chip.addEventListener('dragend',()=>{
+      chip.classList.remove('dragging');
+      dragItemId=null;
+    });
+    // touch drag
+    chip.addEventListener('touchstart',handleTouchStart,{passive:true});
+    chip.addEventListener('touchmove',handleTouchMove,{passive:false});
+    chip.addEventListener('touchend',handleTouchEnd);
+  });
+  document.querySelectorAll('.fridge-slot').forEach(slot=>{
+    slot.addEventListener('dragover',e=>{e.preventDefault();slot.classList.add('drag-over');});
+    slot.addEventListener('dragleave',()=>slot.classList.remove('drag-over'));
+    slot.addEventListener('drop',e=>{
+      e.preventDefault();slot.classList.remove('drag-over');
+      const zoneId=slot.dataset.zoneId;
+      const zoneName=window._slotZones?.[zoneId]||slot.dataset.zone;
+      if(dragItemId&&zoneName) moveItemToZone(dragItemId, zoneName);
+    });
+  });
+}
+
+// touch drag
+let touchDragId=null, touchGhost=null;
+function handleTouchStart(e){
+  const chip=e.currentTarget;
+  // long press to drag
+  touchDragId=null;
+  chip._pressTimer=setTimeout(()=>{
+    touchDragId=chip.dataset.id;
+    chip.classList.add('dragging');
+    const ghost=document.getElementById('drag-ghost');
+    const item=state.items.find(i=>i.id===touchDragId);
+    if(item){
+      document.getElementById('dg-em').textContent=item.emoji||'🥕';
+      document.getElementById('dg-name').textContent=item.name;
+    }
+    ghost.style.display='flex';
+  },500);
+}
+function handleTouchMove(e){
+  clearTimeout(e.currentTarget._pressTimer);
+  if(!touchDragId)return;
+  e.preventDefault();
+  const t=e.touches[0];
+  const ghost=document.getElementById('drag-ghost');
+  ghost.style.left=t.clientX+'px';ghost.style.top=t.clientY+'px';
+  // highlight target slot
+  document.querySelectorAll('.fridge-slot').forEach(s=>s.classList.remove('drag-over'));
+  const el=document.elementFromPoint(t.clientX,t.clientY);
+  const slot=el?.closest('.fridge-slot');
+  if(slot)slot.classList.add('drag-over');
+}
+function handleTouchEnd(e){
+  clearTimeout(e.currentTarget._pressTimer);
+  if(!touchDragId){return;}
+  e.currentTarget.classList.remove('dragging');
+  document.getElementById('drag-ghost').style.display='none';
+  document.querySelectorAll('.fridge-slot').forEach(s=>s.classList.remove('drag-over'));
+  const t=e.changedTouches[0];
+  const el=document.elementFromPoint(t.clientX,t.clientY);
+  const slot=el?.closest('.fridge-slot');
+  if(slot){
+    const zoneId=slot.dataset.zoneId;
+    const zoneName=window._slotZones?.[zoneId]||slot.dataset.zone;
+    if(zoneName) moveItemToZone(touchDragId, zoneName);
+  }
+  touchDragId=null;
+}
+
+function moveItemToZone(itemId, zoneName){
+  const item=state.items.find(i=>i.id===itemId);
+  if(!item||item.zone===zoneName)return;
+  const from=item.zone;
+  item.zone=zoneName;
+  saveState();
+  renderFridge();
+  showToast(`"${item.name}" → ${zoneName} 이동 ✅`);
+}
+
+// ── STATS ──
+function updateHeaderStats(){
+  const items=activeItems();
+  document.getElementById('stat-total').textContent=items.length;
+  const warn=items.filter(i=>i.expiry&&daysLeft(i.expiry)>=0&&daysLeft(i.expiry)<=3);
+  const over=items.filter(i=>i.expiry&&daysLeft(i.expiry)<0);
+  const warnTotal=warn.length+over.length;
+  if(warnTotal>0){
+    document.getElementById('stat-warn-n').textContent=warnTotal;
+    document.getElementById('stat-warn').style.display='flex';
+  }else{
+    document.getElementById('stat-warn').style.display='none';
+  }
+}
+
+// ── ACTION SHEET ──
+let actionItemId=null;
+function openActionSheet(id){
+  actionItemId=id;
+  const item=state.items.find(i=>i.id===id);
+  if(!item)return;
+  const exp=item.expiry?getExpInfo(daysLeft(item.expiry)):{cls:'',label:''};
+  document.getElementById('as-em').innerHTML=item.imageData
+    ?`<img src="${item.imageData}" style="width:32px;height:32px;border-radius:8px;object-fit:cover">`
+    :(item.emoji||'🥕');
+  document.getElementById('as-name').textContent=item.name;
+  document.getElementById('as-meta').textContent=`${item.zone}${item.qty?' · '+item.qty:''}${exp.label?' · '+exp.label:''}`;
+  document.getElementById('action-overlay').classList.add('open');
+}
+function closeAction(){document.getElementById('action-overlay').classList.remove('open');}
+function editFromAction(){closeAction();editItem(actionItemId);}
+function deleteFromAction(){
+  if(!confirm('삭제할까요?'))return;
+  state.items=state.items.filter(i=>i.id!==actionItemId);
+  saveState();renderFridge();updateHeaderStats();
+  closeAction();showToast('삭제했어요');
+}
+function moveFromAction(){
+  closeAction();
+  const item=state.items.find(i=>i.id===actionItemId);
+  if(!item)return;
+  const fridge=activeFridge();
+  document.getElementById('move-item-info').textContent=`"${item.name}" 를 이동할 칸을 선택해주세요`;
+  const grid=document.getElementById('zone-sel-grid');
+  let moveTarget=null;
+  grid.innerHTML=fridge.zones.filter(z=>z!==item.zone).map(z=>
+    `<button class="zone-sel-btn" onclick="selectMoveZone(this,'${escHtml(z)}')">${z}</button>`
+  ).join('');
+  document.getElementById('move-confirm').style.display='none';
+  document.getElementById('move-overlay').classList.add('open');
+}
+let moveTargetZone=null;
+function selectMoveZone(btn,zone){
+  moveTargetZone=zone;
+  document.querySelectorAll('.zone-sel-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  document.getElementById('move-confirm').style.display='block';
+}
+function closeMoveModal(){document.getElementById('move-overlay').classList.remove('open');moveTargetZone=null;}
+function confirmMove(){
+  if(!moveTargetZone||!actionItemId)return;
+  moveItemToZone(actionItemId, moveTargetZone);
+  closeMoveModal();
+}
+
+// ── ADD/EDIT ITEM MODAL ──
+let editingItemId=null, selEmoji='🥕', selImgData=null, itemType='ingredient', ingTags=[];
+
+function openAddItemModal(preZone=null){
+  editingItemId=null; selEmoji='🥕'; selImgData=null; itemType='ingredient'; ingTags=[];
+  document.getElementById('item-modal-title').textContent='추가하기';
+  document.getElementById('f-name').value='';
+  document.getElementById('f-qty').value='';
+  document.getElementById('f-expiry').value='';
+  document.getElementById('f-made').value='';
+  document.getElementById('f-memo').value='';
+  updateItemTypeUI();updateEpPreview();buildEpCats('채소');
+  buildZoneSelect(preZone);
+  renderIngTags();
+  document.getElementById('item-modal-overlay').classList.add('open');
+}
+function editItem(id){
+  const item=state.items.find(i=>i.id===id);
+  if(!item)return;
+  editingItemId=id; selEmoji=item.emoji||'🥕'; selImgData=item.imageData||null;
+  itemType=item.type||'ingredient'; ingTags=[...(item.ings||[])];
+  document.getElementById('item-modal-title').textContent='수정하기';
+  document.getElementById('f-name').value=item.name;
+  document.getElementById('f-qty').value=item.qty||'';
+  document.getElementById('f-expiry').value=item.expiry||'';
+  document.getElementById('f-made').value=item.made||'';
+  document.getElementById('f-memo').value=item.memo||'';
+  updateItemTypeUI();updateEpPreview();buildEpCats('채소');
+  buildZoneSelect(item.zone);renderIngTags();
+  document.getElementById('item-modal-overlay').classList.add('open');
+}
+function closeItemModal(){document.getElementById('item-modal-overlay').classList.remove('open');}
+
+function setItemType(t){itemType=t;updateItemTypeUI();}
+function updateItemTypeUI(){
+  const isFood=itemType==='food';
+  document.getElementById('tt-ing').classList.toggle('active',!isFood);
+  document.getElementById('tt-food').classList.toggle('active',isFood);
+  document.getElementById('fg-made').style.display=isFood?'block':'none';
+  document.getElementById('fg-ings').style.display=isFood?'block':'none';
+}
+function buildZoneSelect(sel=null){
+  const fridge=activeFridge();
+  const el=document.getElementById('f-zone');
+  el.innerHTML=(fridge?.zones||[]).map(z=>`<option value="${escHtml(z)}" ${z===sel?'selected':''}>${z}</option>`).join('');
+}
+function buildEpCats(active){
+  const cats=Object.keys(EMOJIS);
+  document.getElementById('ep-cats').innerHTML=cats.map(c=>
+    `<button class="ep-ct${c===active?' active':''}" onclick="buildEpGrid('${c}',this)">${c}</button>`
+  ).join('');
+  buildEpGrid(active);
+}
+function buildEpGrid(cat, btn){
+  if(btn){document.querySelectorAll('.ep-ct').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+  document.getElementById('ep-grid').innerHTML=(EMOJIS[cat]||[]).map(e=>
+    `<div class="ep-em${e===selEmoji&&!selImgData?' sel':''}" onclick="pickEmoji('${e}')">${e}</div>`
+  ).join('');
+}
+function pickEmoji(e){selEmoji=e;selImgData=null;buildEpGrid(document.querySelector('.ep-ct.active')?.textContent||'채소');updateEpPreview();}
+function updateEpPreview(){
+  const el=document.getElementById('ep-prev');
+  el.innerHTML=selImgData?`<img src="${selImgData}" style="width:100%;height:100%;object-fit:cover;border-radius:10px">`:(selEmoji||'🥕');
+}
+function handleImg(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{selImgData=ev.target.result;document.querySelectorAll('.ep-em').forEach(b=>b.classList.remove('sel'));updateEpPreview();};
+  r.readAsDataURL(f);
+}
+function handleIngTag(e){
+  if(e.key==='Enter'){e.preventDefault();const v=e.target.value.trim();if(v){ingTags.push(v);e.target.value='';renderIngTags();}}
+}
+function renderIngTags(){
+  const area=document.getElementById('ing-area');
+  const inpEl=document.getElementById('itag-inp');
+  area.innerHTML=ingTags.map((t,i)=>
+    `<span class="itag-pill">${t}<button onclick="ingTags.splice(${i},1);renderIngTags()">×</button></span>`
+  ).join('')+inpEl.outerHTML;
+  document.getElementById('itag-inp').addEventListener('keydown',handleIngTag);
+}
+function saveItem(){
+  const name=document.getElementById('f-name').value.trim();
+  if(!name){showToast('이름을 입력해주세요');return;}
+  const item={
+    id:editingItemId||Date.now().toString(),
+    fridgeId:state.activeFridgeId,
+    type:itemType,name,emoji:selEmoji,imageData:selImgData,
+    zone:document.getElementById('f-zone').value,
+    qty:document.getElementById('f-qty').value.trim(),
+    expiry:document.getElementById('f-expiry').value,
+    made:document.getElementById('f-made').value,
+    ings:[...ingTags],
+    memo:document.getElementById('f-memo').value.trim(),
+  };
+  if(editingItemId){
+    const idx=state.items.findIndex(i=>i.id===editingItemId);
+    state.items[idx]=item;
+  }else{state.items.push(item);}
+  saveState();closeItemModal();renderFridge();updateHeaderStats();
+  showToast(editingItemId?'수정했어요 ✅':'추가했어요 ✅');
+}
+
+// ── EXPIRY PAGE ──
+function renderExpiry(){
+  const items=activeItems().filter(i=>i.expiry).sort((a,b)=>new Date(a.expiry)-new Date(b.expiry));
+  const over=items.filter(i=>daysLeft(i.expiry)<0);
+  const soon=items.filter(i=>daysLeft(i.expiry)>=0&&daysLeft(i.expiry)<=3);
+  const ok=items.filter(i=>daysLeft(i.expiry)>3);
+  document.getElementById('exp-empty').style.display=(over.length+soon.length+ok.length===0)?'block':'none';
+  document.getElementById('exp-count').textContent=`${items.length}개`;
+  renderExpGroup('exp-expired',over,'pill-red',d=>`${Math.abs(d)}일 지남`);
+  renderExpGroup('exp-soon',soon,'pill-yellow',d=>d===0?'오늘 만료':`D-${d}`);
+  renderExpGroup('exp-ok',ok,'pill-green',d=>`D-${d}`);
+}
+function renderExpGroup(gid,items,pc,labelFn){
+  const g=document.getElementById(gid+'-g');
+  const l=document.getElementById(gid+'-list');
+  if(items.length===0){g.style.display='none';return;}
+  g.style.display='block';
+  l.innerHTML=items.map(item=>`
+    <div class="exp-row" onclick="openActionSheet('${item.id}')">
+      <div class="exp-em">${item.imageData?`<img src="${item.imageData}" style="width:28px;height:28px;border-radius:6px;object-fit:cover">`:(item.emoji||'🥕')}</div>
+      <div class="exp-info"><div class="exp-nm">${item.name}</div><div class="exp-sub">${item.zone}${item.qty?' · '+item.qty:''}</div></div>
+      <div class="exp-pill ${pc}">${labelFn(daysLeft(item.expiry))}</div>
+    </div>`).join('');
+}
+
+// ── RECIPE PAGE ──
+let recipeMode='all', recipeSelIds=new Set();
+function setRM(m){
+  recipeMode=m;
+  document.querySelectorAll('.rmode-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('rm-'+m).classList.add('active');
+  document.getElementById('rm-pick-area').style.display=m==='pick'?'block':'none';
+  if(m==='pick')renderRMTags();
+  const descs={all:'냉장고 전체 재료 기반',pick:'선택한 재료로',near:'유통기한 5일 이내 재료 우선',shop:'1~2개만 더 사면 되는 레시피'};
+  document.getElementById('rm-desc').textContent=descs[m]||'';
+}
+function renderRMTags(){
+  const ings=activeItems().filter(i=>i.type==='ingredient');
+  document.getElementById('rm-ing-tags').innerHTML=ings.map(i=>
+    `<span class="itag${recipeSelIds.has(i.id)?' sel':''}" onclick="toggleRMIng('${i.id}',this)">${i.emoji||'🥕'} ${i.name}</span>`
+  ).join('')||'<span style="font-size:12px;color:var(--text3)">등록된 재료 없음</span>';
+}
+function toggleRMIng(id,el){
+  if(recipeSelIds.has(id)){recipeSelIds.delete(id);el.classList.remove('sel');}
+  else{recipeSelIds.add(id);el.classList.add('sel');}
+}
+async function getRecipe(){
+  let ings=activeItems().filter(i=>i.type==='ingredient');
+  let modeDesc='',prompt='';
+  if(recipeMode==='pick'){
+    ings=ings.filter(i=>recipeSelIds.has(i.id));
+    if(!ings.length){showToast('재료를 선택해주세요');return;}
+    modeDesc='선택한 재료로';
+  }else if(recipeMode==='near'){
+    ings=ings.filter(i=>i.expiry&&daysLeft(i.expiry)<=5&&daysLeft(i.expiry)>=0);
+    if(!ings.length){showToast('임박 재료가 없어요');return;}
+    modeDesc='임박 재료 우선';
+  }else if(recipeMode==='shop'){modeDesc='1~2개 추가 구매';}
+  else modeDesc='전체 재료';
+  if(!ings.length){showToast('냉장고에 재료를 추가해주세요');return;}
+  const names=ings.map(i=>i.name).join(', ');
+  const btn=document.getElementById('btn-recipe');btn.disabled=true;
+  document.getElementById('recipe-output').innerHTML=`<div class="recipe-loading"><div class="spin"></div> AI가 레시피를 생각 중...</div>`;
+  if(recipeMode==='shop'){
+    prompt=`냉장고 재료: ${names}\n1~2개만 추가 구매하면 되는 한국 가정식 2가지 추천.\n형식:\n**[요리명]**\n⏱ 조리시간:\n🛒 추가 구매(1~2개):\n📋 만드는 법(4~5단계):\n💡 팁:\n---`;
+  }else if(recipeMode==='near'){
+    prompt=`임박 재료: ${names}\n이 재료들 소진하는 한국 가정식 2가지 추천.\n형식:\n**[요리명]**\n⏱ 조리시간:\n⚡ 활용 재료:\n🛒 추가 필요(없으면 없음):\n📋 만드는 법(4~5단계):\n💡 팁:\n---`;
+  }else{
+    prompt=`냉장고 재료: ${names}\n${modeDesc}으로 만들 수 있는 한국 가정식 2가지 추천.\n형식:\n**[요리명]**\n⏱ 조리시간:\n🛒 추가 필요(없으면 없음):\n📋 만드는 법(4~5단계):\n💡 팁:\n---`;
+  }
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    const text=data.content?.[0]?.text||'오류가 발생했어요.';
+    document.getElementById('recipe-output').innerHTML=`<div class="recipe-result"><div class="rr-title">🍳 추천 레시피 (${modeDesc})</div><div class="rr-body">${text.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>')}</div></div>`;
+  }catch{document.getElementById('recipe-output').innerHTML=`<div class="recipe-result"><div class="rr-body">❌ 오류가 발생했어요</div></div>`;}
+  btn.disabled=false;
+}
+
+// ── MY PAGE ──
+function renderMyPage(){
+  const el=document.getElementById('my-fridge-list');
+  el.innerHTML=state.fridges.map(f=>{
+    const fitems=state.items.filter(i=>i.fridgeId===f.id);
+    const warn=fitems.filter(i=>i.expiry&&daysLeft(i.expiry)>=0&&daysLeft(i.expiry)<=3).length;
+    return `<div class="my-fridge-item${f.id===state.activeFridgeId?' active-fridge':''}" onclick="switchFridgeFromMy('${f.id}')">
+      <div class="mfi-icon">🧊</div>
+      <div class="mfi-info">
+        <div class="mfi-nick">${f.nick}</div>
+        <div class="mfi-model">${f.model||'직접 설정'}</div>
+        <div class="mfi-stats">
+          <span class="mfi-stat">전체 <span>${fitems.length}</span></span>
+          <span class="mfi-stat">음식 <span>${fitems.filter(i=>i.type==='food').length}</span></span>
+          ${warn>0?`<span class="mfi-stat" style="color:var(--yellow)">임박 <span>${warn}</span></span>`:''}
+        </div>
+      </div>
+      <div class="mfi-actions">
+        <button class="mfi-btn" onclick="event.stopPropagation();openEditFridgeModal('${f.id}')" title="설정">⚙️</button>
+        ${state.fridges.length>1?`<button class="mfi-btn del" onclick="event.stopPropagation();deleteFridge('${f.id}')" title="삭제">🗑</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+function switchFridgeFromMy(id){
+  switchFridge(id);showPage('fridge');
+}
+
+// ── FRIDGE MODAL (add/edit) ──
+let editingFridgeId=null, fmZones=[];
+function openAddFridgeModal(){
+  editingFridgeId=null; fmZones=[];
+  document.getElementById('fridge-modal-title').textContent='냉장고 추가';
+  document.getElementById('fm-nick').value='';
+  document.getElementById('fm-model').value='';
+  renderFmZoneList();
+  document.getElementById('fridge-modal-overlay').classList.add('open');
+}
+function openEditFridgeModal(id){
+  editingFridgeId=id;
+  const f=state.fridges.find(fr=>fr.id===id);
+  if(!f)return;
+  fmZones=[...f.zones];
+  document.getElementById('fridge-modal-title').textContent='냉장고 설정';
+  document.getElementById('fm-nick').value=f.nick;
+  document.getElementById('fm-model').value=f.model||'';
+  renderFmZoneList();
+  document.getElementById('fridge-modal-overlay').classList.add('open');
+}
+function closeFridgeModal(){document.getElementById('fridge-modal-overlay').classList.remove('open');}
+function renderFmZoneList(){
+  document.getElementById('fm-zone-list').innerHTML=fmZones.map((z,i)=>
+    `<div class="ze-row"><input value="${z}" onchange="fmZones[${i}]=this.value"><button class="ze-del" onclick="fmZones.splice(${i},1);renderFmZoneList()">×</button></div>`
+  ).join('');
+}
+function addFmZone(name){if(!fmZones.includes(name)){fmZones.push(name);renderFmZoneList();}}
+function addFmZoneCustom(){
+  const v=document.getElementById('fm-zone-inp').value.trim();
+  if(v&&!fmZones.includes(v)){fmZones.push(v);renderFmZoneList();}
+  document.getElementById('fm-zone-inp').value='';
+}
+async function searchModelForFridge(){
+  const val=document.getElementById('fm-model').value.trim();
+  if(!val){showToast('모델명을 입력해주세요');return;}
+  const btn=document.getElementById('fm-search-btn');
+  btn.disabled=true;btn.textContent='분석중...';
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,
+        messages:[{role:'user',content:`냉장고 모델명 "${val}"의 실제 내부 칸 구성을 한국어 배열로만 응답해줘.
+
+규칙:
+- 냉장실은 실제 단 수대로 (예: 좌1단/좌2단/좌3단, 우1단/우2단 등 각 단 별로 따로)
+- 냉동실도 단/서랍 별로 따로
+- 야채칸, 문짝칸도 각각 별도 항목으로
+- 삼성 RF90DG91114E 예시: ["냉장실 좌1단","냉장실 좌2단","냉장실 좌3단","냉장실 우1단","냉장실 우2단","냉장실 우3단","야채칸 좌","야채칸 우","문짝 상단","문짝 중단","문짝 하단","냉동실 상단","냉동실 중단","냉동실 슬라이드1","냉동실 슬라이드2"]
+- 모르는 모델은 비슷한 타입(2도어/4도어/양문형)으로 추정해서 상세히
+- 배열만 출력, 다른 텍스트 없이`}]})});
+    const data=await res.json();
+    const arr=JSON.parse(data.content?.[0]?.text?.trim()||'[]');
+    if(Array.isArray(arr)&&arr.length>0){fmZones=arr;renderFmZoneList();showToast('칸 구성을 불러왔어요!');}
+    else throw new Error();
+  }catch{showToast('모델 정보를 찾지 못했어요');}
+  btn.disabled=false;btn.textContent='AI검색';
+}
+function saveFridgeModal(){
+  const nick=document.getElementById('fm-nick').value.trim();
+  if(!nick){showToast('닉네임을 입력해주세요');return;}
+  if(fmZones.length===0){showToast('칸을 하나 이상 추가해주세요');return;}
+  if(editingFridgeId){
+    const f=state.fridges.find(fr=>fr.id===editingFridgeId);
+    const fallback=fmZones[0];
+    // 삭제된 칸 아이템 → fallback
+    state.items.filter(i=>i.fridgeId===editingFridgeId&&!fmZones.includes(i.zone)).forEach(i=>i.zone=fallback);
+    f.nick=nick;f.model=document.getElementById('fm-model').value.trim();f.zones=[...fmZones];
+  }else{
+    const f={id:Date.now().toString(),nick,model:document.getElementById('fm-model').value.trim(),zones:[...fmZones],setupType:'manual'};
+    state.fridges.push(f);
+    state.activeFridgeId=f.id;
+  }
+  saveState();
+  renderFridgeTabs();renderFridge();renderMyPage();updateHeaderStats();
+  closeFridgeModal();showToast(editingFridgeId?'저장했어요 ✅':'냉장고를 추가했어요 🧊');
+  editingFridgeId=null;
+}
+function deleteFridge(id){
+  if(!confirm('이 냉장고와 모든 재료/음식을 삭제할까요?'))return;
+  state.fridges=state.fridges.filter(f=>f.id!==id);
+  state.items=state.items.filter(i=>i.fridgeId!==id);
+  if(state.activeFridgeId===id) state.activeFridgeId=state.fridges[0]?.id||null;
+  saveState();renderFridgeTabs();renderFridge();renderMyPage();updateHeaderStats();
+  showToast('삭제했어요');
+}
+
+// ── STATS POPUP ──
+function showStatsPopup(){
+  const items=activeItems();
+  const f=activeFridge();
+  document.getElementById('stats-title').textContent=f?.nick||'냉장고';
+  document.getElementById('sp-total').textContent=items.length;
+  document.getElementById('sp-food').textContent=items.filter(i=>i.type==='food').length;
+  document.getElementById('sp-warn').textContent=items.filter(i=>i.expiry&&daysLeft(i.expiry)>=0&&daysLeft(i.expiry)<=3).length;
+  document.getElementById('sp-over').textContent=items.filter(i=>i.expiry&&daysLeft(i.expiry)<0).length;
+  document.getElementById('sp-list').innerHTML=items.map(item=>{
+    const exp=item.expiry?getExpInfo(daysLeft(item.expiry)):{cls:'',label:''};
+    return`<div class="sp-row" onclick="closeStats();openActionSheet('${item.id}')">
+      <span style="font-size:20px;">${item.emoji||'🥕'}</span>
+      <div style="flex:1;"><div style="font-size:13px;font-weight:700;">${item.name}</div><div style="font-size:11px;color:var(--text3);">${item.zone}${item.qty?' · '+item.qty:''}</div></div>
+      ${exp.label?`<span style="font-size:11px;font-weight:700;" class="ci-exp ${exp.cls}">${exp.label}</span>`:''}
+    </div>`;
+  }).join('')||'<div class="empty-state" style="padding:20px"><p>아직 비어있어요</p></div>';
+  document.getElementById('stats-overlay').classList.add('open');
+}
+function closeStats(){document.getElementById('stats-overlay').classList.remove('open');}
+
+// ── RESET ──
+function confirmResetAll(){
+  if(!confirm('모든 냉장고, 재료, 음식 데이터가 삭제돼요.\n이 작업은 되돌릴 수 없어요. 계속할까요?'))return;
+  localStorage.removeItem('fridgeFriend_v3');location.reload();
+}
+
+// ── PAGE NAV ──
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>{
+    p.classList.remove('active');
+  });
+  document.querySelectorAll('.bn-item').forEach(b=>b.classList.remove('active'));
+  const pageEl=document.getElementById('page-'+name);
+  if(pageEl) pageEl.classList.add('active');
+  document.getElementById('bn-'+name)?.classList.add('active');
+  const fab=document.getElementById('fab');
+  const fabScan=document.getElementById('fab-scan');
+  const isFridge=(name==='fridge');
+  if(fab) fab.style.display=isFridge?'flex':'none';
+  if(fabScan) fabScan.style.display=isFridge?'flex':'none';
+  if(name==='expiry')renderExpiry();
+  if(name==='recipe')renderRMTags();
+  if(name==='my')renderMyPage();
+}
+
+// ══════════════════════════════════
+//  SCAN (사진 인식) 기능
+// ══════════════════════════════════
+let scanImgData = null;
+let scanItems = [];   // [{emoji, name, qty, checked}]
+
+function openScanModal(){
+  scanImgData=null; scanItems=[];
+  document.getElementById('scan-preview-img').style.display='none';
+  document.getElementById('scan-placeholder').style.display='block';
+  document.getElementById('scan-analyze-btn').style.display='none';
+  document.getElementById('scan-loading').style.display='none';
+  document.getElementById('scan-result-area').style.display='none';
+  document.getElementById('scan-btn-area').innerHTML=`<button class="btn-save" id="scan-analyze-btn" onclick="analyzeScanImg()" style="display:none;">🤖 AI로 재료 인식하기</button>`;
+  // 칸 목록 채우기
+  const fridge=activeFridge();
+  const zoneEl=document.getElementById('scan-target-zone');
+  zoneEl.innerHTML=(fridge?.zones||[]).map(z=>`<option value="${z}">${z}</option>`).join('');
+  document.getElementById('scan-overlay').classList.add('open');
+}
+function closeScanModal(){
+  document.getElementById('scan-overlay').classList.remove('open');
+}
+
+function handleScanImg(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    scanImgData=ev.target.result;
+    const img=document.getElementById('scan-preview-img');
+    img.src=scanImgData;
+    img.style.display='block';
+    document.getElementById('scan-placeholder').style.display='none';
+    document.getElementById('scan-analyze-btn').style.display='block';
+    document.getElementById('scan-result-area').style.display='none';
+    document.getElementById('scan-loading').style.display='none';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function analyzeScanImg(){
+  if(!scanImgData){showToast('사진을 먼저 선택해주세요');return;}
+  document.getElementById('scan-analyze-btn').style.display='none';
+  document.getElementById('scan-loading').style.display='flex';
+  document.getElementById('scan-result-area').style.display='none';
+
+  // base64에서 mediaType과 data 분리
+  const [meta, b64]=scanImgData.split(',');
+  const mediaType=meta.match(/:(.*?);/)?.[1]||'image/jpeg';
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{
+          role:'user',
+          content:[
+            {type:'image',source:{type:'base64',media_type:mediaType,data:b64}},
+            {type:'text',text:`이 냉장고 사진에서 보이는 식재료와 음식을 모두 파악해서 JSON 배열로만 응답해줘.
+각 항목: {"emoji":"적절한이모지","name":"재료명","qty":"대략적수량(예:3개,1팩,약200g)","type":"ingredient 또는 food"}
+예시: [{"emoji":"🥕","name":"당근","qty":"3개","type":"ingredient"},{"emoji":"🥛","name":"우유","qty":"1팩","type":"ingredient"}]
+- 불분명한 것도 최대한 파악해서 포함
+- JSON 배열만 출력, 다른 텍스트 없이`}
+          ]
+        }]
+      })
+    });
+    const data=await res.json();
+    const text=data.content?.[0]?.text?.trim()||'[]';
+    // JSON 추출 (백틱 등 제거)
+    const clean=text.replace(/```json|```/g,'').trim();
+    const parsed=JSON.parse(clean);
+    scanItems=parsed.map(i=>({...i,checked:true}));
+    renderScanResult();
+  }catch(err){
+    showToast('인식에 실패했어요. 다시 시도해주세요.');
+    document.getElementById('scan-analyze-btn').style.display='block';
+  }
+  document.getElementById('scan-loading').style.display='none';
+}
+
+function renderScanResult(){
+  const list=document.getElementById('scan-result-list');
+  document.getElementById('scan-result-title').textContent=`인식된 재료 ${scanItems.length}개`;
+  list.innerHTML=scanItems.map((item,i)=>`
+    <div class="scan-item${item.checked?' checked':''}" onclick="toggleScanItem(${i})">
+      <div class="scan-check">${item.checked?'✓':''}</div>
+      <div class="scan-item-emoji">${item.emoji||'🥕'}</div>
+      <div class="scan-item-info">
+        <div class="scan-item-name">${item.name}</div>
+        <div class="scan-item-sub">${item.qty||''} · ${item.type==='food'?'음식':'재료'}</div>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('scan-result-area').style.display='block';
+}
+
+function toggleScanItem(i){
+  scanItems[i].checked=!scanItems[i].checked;
+  renderScanResult();
+}
+function scanSelectAll(){scanItems.forEach(i=>i.checked=true);renderScanResult();}
+function scanDeselectAll(){scanItems.forEach(i=>i.checked=false);renderScanResult();}
+
+function registerScanItems(){
+  const zone=document.getElementById('scan-target-zone').value;
+  const toAdd=scanItems.filter(i=>i.checked);
+  if(!toAdd.length){showToast('등록할 항목을 선택해주세요');return;}
+  toAdd.forEach(item=>{
+    state.items.push({
+      id:Date.now().toString()+Math.random().toString(36).slice(2,6),
+      fridgeId:state.activeFridgeId,
+      type:item.type||'ingredient',
+      name:item.name,
+      emoji:item.emoji||'🥕',
+      imageData:null,
+      zone:zone,
+      qty:item.qty||'',
+      expiry:'',made:'',ings:[],memo:'',
+    });
+  });
+  saveState();
+  renderFridge();
+  updateHeaderStats();
+  closeScanModal();
+  showToast(`${toAdd.length}개 재료를 등록했어요 ✅`);
+}
+
+// ── UTILS ──
+function daysLeft(d){
+  const today=new Date();today.setHours(0,0,0,0);
+  return Math.floor((new Date(d)-today)/86400000);
+}
+function getExpInfo(d){
+  if(d<0)return{cls:'over',label:`${Math.abs(d)}일 초과`};
+  if(d===0)return{cls:'soon',label:'오늘'};
+  if(d<=3)return{cls:'soon',label:`D-${d}`};
+  return{cls:'ok',label:`D-${d}`};
+}
+function showToast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2200);
+}
+
+// ── BOOT ──
+;(()=>{
+  const m={name:'냉장고 친구',short_name:'냉장고',description:'냉장고 재료·음식 스마트 관리',start_url:'./',display:'standalone',background_color:'#0D1117',theme_color:'#0D1117',orientation:'portrait',icons:[{src:"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='40' fill='%230D1117'/><text y='.88em' font-size='150' x='18'>🧊</text></svg>",sizes:'192x192',type:'image/svg+xml'}]};
+  const b=new Blob([JSON.stringify(m)],{type:'application/json'});
+  document.getElementById('pwa-manifest').href=URL.createObjectURL(b);
+})();
+
+loadState();
+if(state.fridges&&state.fridges.length>0){
+  if(!state.activeFridgeId)state.activeFridgeId=state.fridges[0].id;
+  initMainApp();
+}
+</script>
+</body>
+</html>
