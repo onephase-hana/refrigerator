@@ -2025,5 +2025,15 @@ if(state.fridges&&state.fridges.length>0){
   initMainApp();
 }
 </script>
+<script>
+const link = document.createElement('link');
+link.rel = 'manifest';
+link.href = '/refrigerator/manifest.json';
+document.head.appendChild(link);
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/refrigerator/service-worker.js');
+}
+</script>
 </body>
 </html>
